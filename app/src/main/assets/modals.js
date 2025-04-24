@@ -46,13 +46,52 @@ function mobileIconPopup(){
   quizContainer.appendChild(mobilePopup);
 
   // Išjungiam mobileBtn, kad nebūtų galima kelis kartus spausti
-  mobileBtn.disabled = true;
+  //mobileBtn.disabled = true;
 
   mobileCloseBtn.addEventListener("click", ()=>{
     mobilePopup.remove();
   });
 
 }
+
+function showRewardPopupDiv() {
+    // Patikriname ar elementas jau egzistuoja
+    let rewardPopupContainer = document.getElementById("reward-popup-container");
+    if (!rewardPopupContainer) {
+        rewardPopupContainer = document.createElement("div");
+        rewardPopupContainer.id = "reward-popup-container";
+        rewardPopupContainer.classList.add("reward-popup-container");
+
+        const rewardPopupText = document.createElement("p");
+        rewardPopupText.textContent = "Ar norite peržiūrėti reklamą, kad gautumėte papildomą pagalbą?";
+        rewardPopupContainer.appendChild(rewardPopupText);
+
+        // Sukuriame mygtuką reklamai rodyti
+        const showAdBtn = document.createElement("button");
+        showAdBtn.textContent = "Peržiūrėti reklamą";
+        showAdBtn.classList.add("show-ad-btn");
+        showAdBtn.addEventListener("click", () => {
+            showRewardAd(); // Kviečiam reklama
+            rewardPopupContainer.remove(); // Pašalinam popupa
+        });
+        rewardPopupContainer.appendChild(showAdBtn);
+
+        // Sukuriame uždarymo mygtuką
+        const closeBtn = document.createElement("button");
+        closeBtn.textContent = "X";
+        closeBtn.classList.add("close-reward-btn");
+        closeBtn.addEventListener("click", () => {
+            rewardPopupContainer.remove(); // Panaikina visą div
+        });
+        rewardPopupContainer.appendChild(closeBtn);
+
+        quizContainer.appendChild(rewardPopupContainer);
+    }else{
+        rewardPopupContainer.remove(); // Panaikina visą div
+    }
+}
+
+
 
 //function popUp(row, callback) {
 //  const popup = document.createElement("div");

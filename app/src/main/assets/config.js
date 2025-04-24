@@ -20,6 +20,11 @@ window.addEventListener('backbutton', function(event) {
     }
 });
 
+//Funkcija iskviesti tarpine reklama.
+function showInterstitial(){
+    window.Android.showInterstitial();
+}
+
 // Po lygio pabaigos
 //Android.showInterstitial();
 

@@ -106,7 +106,7 @@ list-style: none;
 }
 
 .closeBtn,
-#next-btn {
+#next-btn, .show-ad-btn {
     width: 50%;
     max-width: 200px;
     min-height: 60px; /* Naudojamas min-height */
@@ -120,7 +120,7 @@ list-style: none;
     cursor: pointer;
 }
 
-.closeBtn {
+.closeBtn, .show-ad-btn {
     color: rgb(237, 227, 179);
     background: rgb(114, 77, 226);
 }
@@ -845,6 +845,54 @@ color:yellow;
     box-shadow: 0 0 20px 10px #7d31ee;
     color: white;
   }
+
+
+  .reward-popup-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+                max-width: 600px;
+                min-height: 200px;
+        padding: 20px;
+        background: rgba(15, 3, 50, 0.8);
+        color: white;
+        border: 2px solid #007bff;
+              border-radius: 10px;
+              box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        text-align: center;
+        z-index: 1000;
+        /*display: none;*/ /* Pašalinau, nes dabar valdome su js*/
+    }
+
+
+
+    .show-ad-btn:hover {
+        background-color: #45a049;
+    }
+
+      .close-reward-btn{
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          background: red;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+      }
+
+      .close-reward-btn:hover{
+        background: #7d31ee;
+      box-shadow: 0 0 20px 10px #7d31ee;
+      color: white;
+      }
+
 
 
 #score{

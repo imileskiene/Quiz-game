@@ -39,6 +39,10 @@ playLoopSound();
 
 start.addEventListener("click", async () => {
     await playSound("press");
+    if (typeof Android !== "undefined") {
+    console.log("Start button clicked");
+           showInterstitial();
+        }
     startContainer.style.display = "none";
     rulesContainer.style.display = "block";
 });
@@ -49,6 +53,8 @@ backBtn.addEventListener("click", async () => {
     themeContainer.style.display = "block";
     stopQuizSound();
     playLoopSound();
+    mobileBtnFirstClick = false;
+        isMobileHelpActive = false;
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -195,12 +201,17 @@ try{
 
   createScoreTable();
 
+  mobileBtnFirstClick = false;
+          isMobileHelpActive = false;
+
   currentQuestionIndex = 0;
   score = 0;
   showQuestion();
   cacheAnswerButtons();
   // Čia įjungiame mobileBtn, kai pradedamas quizas
   mobileBtn.disabled = false;
+  mobileBtn.classList.remove("disabled"); // pašalina disabled klasę
+  mobileIcon.disabled = false;
   boltBtn.disabled  = false;
   const boltIcon = boltBtn.querySelector('i');
   boltIcon.style.color = 'aqua'; // Grąžiname pradinę spalvą
@@ -348,16 +359,101 @@ function playSound(isCorrect) {
   });
 }
 
-mobileBtn.addEventListener("click", async () => {
-        await playSound("press");  // Groja "press" garsą, kai mygtukas įjungtas
-        mobileIconPopup();
+// Naujas kintamasis, kuris seks, ar vartotojas jau spaudė pirmą kartą
+let mobileBtnFirstClick = false;
+let isMobileHelpActive = false;
+
+function enableMobileHelpAfterReward() {
+    console.log("enableMobileHelpAfterReward() called from Android");
+    // Čia dabar įjungsime mobileBtn, nes reward reklama baigėsi.
+    //mobileBtn.disabled = false; // Įjungiam mygtuką
+    mobileBtn.classList.remove("disabled"); // pašalina disabled klasę
+    const mobileIconElement = mobileBtn.querySelector("i") || mobileIcon;
+    if (mobileIconElement) {
+        mobileIconElement.style.color = "aqua";
+    }
+    isMobileHelpActive = false;
+    mobileBtnFirstClick = false; // kad paspaudus is naujo veiktų
+    // Galima pridėti daugiau logikos, pvz., pakeisti mygtuko tekstą arba padaryti kitus veiksmus
+}
+
+//Ši funkcija iškviečia Android kodą, kad būtų parodyta reward reklama.
+function showRewardAd() {
+    console.log("showRewardAd() called");
+    // Kviečiame Android'o "Android" objektą (sukurtą per addJavascriptInterface).
+    window.Android.showRewardAd();
+}
+
+mobileBtn.addEventListener("click", async (event) => {
+    console.log("mobileBtn.addEventListener");
+    console.log("mobileBtnFirstClick", mobileBtnFirstClick);
+    await playSound("press"); // Groja "press" garsą
+    // Patikrinu ar paspaudimas buvo ant ikonos
+    const isIconClicked = event.target.closest("#mobile-icon");
+    console.log("isIconClicked", isIconClicked);
+    if (!mobileBtnFirstClick && isMobileHelpActive === false) {
+        console.log("Pirmas paspaudimas");
+        // Pirmas paspaudimas
+        mobileIconPopup(); // Rodomas mobilus popup
+        //  mobileBtn.disabled = true; // nebenaudosim disabled
+        isMobileHelpActive = true;
+        mobileBtnFirstClick = true; // Nustatom, kad mygtukas jau paspaustas pirmą kartą
+    } else {
+        console.log("Antras paspaudimas");
+        // Antras paspaudimas (mygtukas jau buvo paspaustas)
+        if (isMobileHelpActive === true && mobileBtnFirstClick === true) {
+            console.log("mygtukas deaktyvuotas");
+            await playSound("notActiveSound"); // Groja "notActiveSound"
+            showRewardPopupDiv(); // Keičiame showMobileRewardPopup į showRewardPopupDiv
+        } else {
+            console.log("mygtukas aktyvus");
+        }
+    }
 });
 
-mobileIcon.addEventListener("click", async () => {
-if(mobileBtn.disabled){
-await playSound("notActiveSound");  // Groja "press" garsą, kai mygtukas įjungtas
-}
-});
+//mobileIcon.addEventListener("click", async () => {
+//    if (mobileBtn.disabled && isMobileHelpActive === true ) {
+//        await playSound("notActiveSound");  // Groja "press" garsą, kai mygtukas įjungtas
+//    }
+//});
+
+// //Ši funkcija bus iškviesta iš Android kodo, kai reward reklama bus uždaryta.
+//function enableMobileHelpAfterReward() {
+//    console.log("enableMobileHelpAfterReward() called from Android");
+//    // Čia dabar įjungsime mobileBtn, nes reward reklama baigėsi.
+//    mobileBtn.disabled = false; // Įjungiam mygtuką
+//    mobileBtn.classList.remove("disabled"); // pašalina disabled klasę
+//    const mobileIconElement = mobileBtn.querySelector("i") || mobileIcon;
+//    if (mobileIconElement) {
+//        mobileIconElement.style.color = "aqua";
+//    }
+//    // Galima pridėti daugiau logikos, pvz., pakeisti mygtuko tekstą arba padaryti kitus veiksmus
+//}
+// //Ši funkcija iškviečia Android kodą, kad būtų parodyta reward reklama.
+//function showRewardAd() {
+//    console.log("showRewardAd() called");
+//    // Kviečiame Android'o "Android" objektą (sukurtą per addJavascriptInterface).
+//    window.Android.showRewardAd();
+//}
+//
+//mobileBtn.addEventListener("click", async () => {
+//        await playSound("press");  // Groja "press" garsą, kai mygtukas įjungtas
+//        mobileIconPopup();
+//        // Išjungiame, bet leidžiame gauti dar vieną šansą per reklamą
+//            mobileBtn.disabled = true;
+//
+//            if (window.Android?.showRewardAd) {
+//                Android.showRewardAd();
+//            }
+//});
+//
+//mobileIcon.addEventListener("click", async () => {
+//if(mobileBtn.disabled){
+//await playSound("notActiveSound");  // Groja "press" garsą, kai mygtukas įjungtas
+//}
+//});
+
+
 
 boltBtn.addEventListener("click", async function () {
     await playSound("press"); // Laukiame, kol garsas sugroja
