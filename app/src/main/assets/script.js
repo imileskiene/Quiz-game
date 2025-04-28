@@ -58,30 +58,30 @@ function updateUserPointsDisplay() {
   }
 }
 
-//start.addEventListener("click", async () => {
-//    await playOtherSounds("press");
-//    if (typeof Android !== "undefined") {
-//        console.log("Start button clicked");
-//        showInterstitial();
-//    }
-//    startContainer.style.display = "none";
-//    rulesContainer.style.display = "block";
-//});
 start.addEventListener("click", async () => {
     await playOtherSounds("press");
-
-    // Pirmiausia parodome reklama
     if (typeof Android !== "undefined") {
         console.log("Start button clicked");
-
-        // Parodyti tarpinę reklamą ir palaukti, kol ji pasibaigs
-        await showInterstitial();
+        showInterstitial();
     }
-
-    // Kai reklama pasibaigia, rodyti kitą containerį
     startContainer.style.display = "none";
     rulesContainer.style.display = "block";
 });
+//start.addEventListener("click", async () => {
+//    await playOtherSounds("press");
+//
+//    // Pirmiausia parodome reklama
+//    if (typeof Android !== "undefined") {
+//        console.log("Start button clicked");
+//
+//        // Parodyti tarpinę reklamą ir palaukti, kol ji pasibaigs
+//        await showInterstitial();
+//    }
+//
+//    // Kai reklama pasibaigia, rodyti kitą containerį
+//    startContainer.style.display = "none";
+//    rulesContainer.style.display = "block";
+//});
 
 
 backBtn.addEventListener("click", async () => {

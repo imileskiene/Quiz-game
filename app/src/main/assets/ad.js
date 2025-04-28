@@ -1,19 +1,19 @@
 
 //Funkcija iskviesti tarpine reklama.
-//function showInterstitial(){
-//    window.Android.showInterstitial();
-//}
-function showInterstitial() {
-    return new Promise((resolve, reject) => {
-        window.Android.showInterstitial();
-
-        // Kviečiame metodą, kai reklama baigiasi
-        window.Android.onInterstitialEnded = () => {
-            console.log("Interstitial ad ended.");
-            resolve(); // Užbaigiame promise, kad pereitumėte prie kito žingsnio
-        };
-    });
+function showInterstitial(){
+    window.Android.showInterstitial();
 }
+//function showInterstitial() {
+//    return new Promise((resolve, reject) => {
+//        window.Android.showInterstitial();
+//
+//        // Kviečiame metodą, kai reklama baigiasi
+//        window.Android.onInterstitialEnded = () => {
+//            console.log("Interstitial ad ended.");
+//            resolve(); // Užbaigiame promise, kad pereitumėte prie kito žingsnio
+//        };
+//    });
+//}
 
 function showRewardAd() {
     console.log("showRewardAd() called");
