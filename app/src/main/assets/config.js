@@ -7,23 +7,23 @@ window.addEventListener('resize', setViewportHeight);
 setViewportHeight();
 
 
-window.addEventListener('backbutton', function(event) {
+window.addEventListener('backbutton', async function(event) {
     event.preventDefault(); // Sustabdome įprastą naršyklės elgesį
 
     if (typeof Android !== "undefined") {
-        stopAllSounds().then(() => { // Sustabdome visus garsus
-            Android.goBack(); // Iškviečiame goBack metodą iš Android
-        });
+        try {
+            await stopAllSounds(); // Laukiame, kol garsai bus sustabdyti
+            Android.goBack(); // Po sustabdymo grįžtame
+        } catch (error) {
+            console.error("Error stopping sounds:", error);
+        }
     } else {
         // Jei esame ne Android aplinkoje, tiesiog grįžtame atgal
         window.history.back();
     }
 });
 
-//Funkcija iskviesti tarpine reklama.
-function showInterstitial(){
-    window.Android.showInterstitial();
-}
+
 
 // Po lygio pabaigos
 //Android.showInterstitial();

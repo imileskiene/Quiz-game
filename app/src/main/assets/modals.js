@@ -63,12 +63,12 @@ function showRewardPopupDiv() {
         rewardPopupContainer.classList.add("reward-popup-container");
 
         const rewardPopupText = document.createElement("p");
-        rewardPopupText.textContent = "Ar norite peržiūrėti reklamą, kad gautumėte papildomą pagalbą?";
+        rewardPopupText.textContent = "Need some extra help?";
         rewardPopupContainer.appendChild(rewardPopupText);
 
         // Sukuriame mygtuką reklamai rodyti
         const showAdBtn = document.createElement("button");
-        showAdBtn.textContent = "Peržiūrėti reklamą";
+        showAdBtn.textContent = "Watch Ad";
         showAdBtn.classList.add("show-ad-btn");
         showAdBtn.addEventListener("click", () => {
             showRewardAd(); // Kviečiam reklama
@@ -91,7 +91,62 @@ function showRewardPopupDiv() {
     }
 }
 
+function backBtnPopup() {
+  // Patikriname ar modalas jau egzistuoja
+  let backBtnContainer = document.getElementById("back-btn-container");
 
+  if (!backBtnContainer) {
+    backBtnContainer = document.createElement("div");
+    backBtnContainer.id = "back-btn-container";
+    backBtnContainer.classList.add("back-btn-container");
+
+    // Sukuriame tekstą
+    const backBtnPopupText = document.createElement("p");
+    backBtnPopupText.textContent = "Going back now will reset your score. Return to the levels?";
+    backBtnContainer.appendChild(backBtnPopupText);
+
+    // Sukuriame mygtuką "Yes"
+    const showApplyBtn = document.createElement("button");
+    showApplyBtn.textContent = "Yes";
+    showApplyBtn.classList.add("show-apply-btn");
+
+    showApplyBtn.addEventListener("click", () => {
+      // Jei vartotojas paspaudžia "Yes"
+      backBtnContainer.remove(); // Panaikiname modalą
+      showInterstitial(); // Parodome reklamas
+      returnToLevels(); // Grįžtame į lygių ekraną
+    });
+
+    backBtnContainer.appendChild(showApplyBtn);
+
+    // Sukuriame uždarymo mygtuką
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "X";
+    closeBtn.classList.add("close-back-btn");
+    closeBtn.addEventListener("click", async () => {
+      await playOtherSounds("press");
+      await playQuizSound();
+      backBtnContainer.remove(); // Pašalina modalą
+    });
+
+    backBtnContainer.appendChild(closeBtn);
+
+    quizContainer.appendChild(backBtnContainer); // Įdedame modalą į žaidimo konteinerį
+  } else {
+    backBtnContainer.remove(); // Jei modalas jau yra, uždarome jį
+  }
+}
+
+function returnToLevels() {
+  // Grįžtame į lygių ekraną
+  updateUserPointsDisplay(); // Atnaujiname taškų skaičių
+  levelContainer.style.display = "block"; // Parodome lygius
+  pointsContainer.style.display = "block"; // Parodome taškų informaciją
+  quizContainer.style.display = "none"; // Paslepiame klausimų ekraną
+  bubbleContainer.style.display = "none"; // Paslepiame burbulą
+  stopLoopSound(); // Sustabdome garso ciklą
+  playLoopSound(); // Grojame garso ciklą
+}
 
 //function popUp(row, callback) {
 //  const popup = document.createElement("div");

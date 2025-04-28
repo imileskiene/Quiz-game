@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -40,12 +41,17 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private var loopMediaPlayer: MediaPlayer? = null
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
+    private var isLoopSoundPlaying = false
+    private var isQuizSoundPlaying = false
+    private var quizMediaPlayer: MediaPlayer? = null
+    private var currentSound: String? = null
     private companion object {
         const val TAG = "MainActivity" // Teisingas būdas: constant kintamasis companion objekte
     }
@@ -55,10 +61,18 @@ class MainActivity : ComponentActivity() {
 
         MobileAds.initialize(this) {}
 
-        // Sukuriame MediaPlayer
-        loopMediaPlayer =
-            MediaPlayer.create(this, R.raw.loop) // R.raw.loop - jūsų garso failo resursas
-        loopMediaPlayer?.isLooping = true // Nustatome loop'ą
+//        // Sukuriame MediaPlayer
+//        loopMediaPlayer =
+//            MediaPlayer.create(this, R.raw.loop) // R.raw.loop - jūsų garso failo resursas
+//        loopMediaPlayer?.isLooping = true // Nustatome loop'ą
+        // Sukuriame MediaPlayer loop garsui
+        loopMediaPlayer = MediaPlayer.create(this, R.raw.loop).apply {
+            isLooping = true
+        }
+        // Sukuriame Quiz MediaPlayer naudojant assets
+        quizMediaPlayer = createMediaPlayerFromAssets("sounds/quiz.mp3").apply {
+            this?.isLooping = true
+        }
 
         // Ijungiamas Edge To Edge
         enableEdgeToEdge()
@@ -68,6 +82,9 @@ class MainActivity : ComponentActivity() {
 
         loadInterstitialAd()
         loadRewardedAd()
+
+        //paleidziame loop garsa
+//        playLoopSound()
 
         setContent {
             MaterialTheme {
@@ -119,30 +136,36 @@ class MainActivity : ComponentActivity() {
     onBackPressedDispatcher.addCallback(this, callback)
 }
 
+    // Metodas sukurti MediaPlayer iš assets
+    private fun createMediaPlayerFromAssets(filename: String): MediaPlayer? {
+        val mediaPlayer = MediaPlayer()
+        try {
+            val assetFileDescriptor: AssetFileDescriptor = assets.openFd(filename)
+            mediaPlayer.setDataSource(
+                assetFileDescriptor.fileDescriptor,
+                assetFileDescriptor.startOffset,
+                assetFileDescriptor.length
+            )
+            assetFileDescriptor.close()
+            mediaPlayer.prepare()
+            return mediaPlayer
+        } catch (e: IOException) {
+            Log.e(TAG, "Error loading file from assets: $filename", e)
+            return null
+        }
+    }
+
     // FUNKCIJA: užkrauti tarpinę reklamą
     private fun loadInterstitialAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             this,
-            "ca-app-pub-3940256099942544/1033173712",  // Testinis interstitial ID
+            "ca-app-pub-3940256099942544/1033173712",
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                     Log.d(TAG, "Interstitial loaded")
-
-                    interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                        override fun onAdDismissedFullScreenContent() {
-                            Log.d(TAG, "Interstitial closed")
-                            interstitialAd = null
-                            loadInterstitialAd() // Pakraunam kitai kartai
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                            Log.e(TAG, "Failed to show interstitial: ${adError.message}")
-                            interstitialAd = null
-                        }
-                    }
                 }
 
                 override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -157,25 +180,36 @@ class MainActivity : ComponentActivity() {
         val adRequest = AdRequest.Builder().build()
         RewardedAd.load(
             this,
-            "ca-app-pub-3940256099942544/5224354917", // Testinis Rewarded Ad ID
+            "ca-app-pub-3940256099942544/5224354917",
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad
                     Log.d(TAG, "Rewarded ad loaded")
 
-                    rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                        override fun onAdDismissedFullScreenContent() {
-                            Log.d(TAG, "Rewarded ad dismissed")
-                            rewardedAd = null
-                            loadRewardedAd() // Pakraunam kitai kartai
-                        }
+                    rewardedAd?.fullScreenContentCallback =
+                        object : FullScreenContentCallback() {
+                            override fun onAdShowedFullScreenContent() {
+                                Log.d(TAG, "Rewarded ad showed")
+                                stopAllSounds()
+                                webView.evaluateJavascript("javascript:onRewardStarted()", null)
+                            }
 
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                            Log.e(TAG, "Failed to show rewarded ad: ${adError.message}")
-                            rewardedAd = null
+                            override fun onAdDismissedFullScreenContent() {
+                                Log.d(TAG, "Rewarded ad dismissed")
+                                val soundToPlay = currentSound
+                                stopAllSounds()
+                                webView.evaluateJavascript("javascript:enableMobileHelpAfterReward('$soundToPlay')", null)
+                                webView.evaluateJavascript("javascript:onRewardEnded('$soundToPlay')", null)
+                                rewardedAd = null
+                                loadRewardedAd()
+                            }
+
+                            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                Log.e(TAG, "Failed to show rewarded ad: ${adError.message}")
+                                rewardedAd = null
+                            }
                         }
-                    }
                 }
 
                 override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -186,28 +220,10 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+
     private fun showRewardedAd() {
         if (rewardedAd != null) {
-            rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    Log.d(TAG, "Rewarded ad dismissed.")
-                    // Reklama buvo uzdaryta.
-                    rewardedAd = null // Pašalinam seną reklamą
-                    loadRewardedAd() // Uzkraunam nauja
-                    // Iškviečiam JavaScript funkciją
-                    webView.evaluateJavascript("javascript:enableMobileHelpAfterReward()", null)
-                }
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    Log.e(TAG, "Rewarded ad failed to show: ${adError.message}")
-                    rewardedAd = null // Pašalinam seną reklamą
-                }
-                override fun onAdShowedFullScreenContent() {
-                    Log.d(TAG, "Rewarded ad showed.")
-                }
-            }
-
             rewardedAd?.show(this) { rewardItem ->
-                // Kol kas čia nieko nedarom. Paliekame tuščią, bet privalomas metodas.
                 val rewardAmount = rewardItem.amount
                 val rewardType = rewardItem.type
                 Log.d(TAG, "User earned reward: $rewardAmount $rewardType")
@@ -222,112 +238,252 @@ class MainActivity : ComponentActivity() {
     // FUNKCIJA: parodyti tarpinę reklamą
     fun showInterstitialAd() {
         if (interstitialAd != null) {
+            interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d(TAG, "Interstitial closed")
+                    stopAllSounds()
+                    webView.evaluateJavascript("javascript:onInterstitialEnded()", null)
+                    interstitialAd = null
+                    loadInterstitialAd()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    Log.e(TAG, "Failed to show interstitial: ${adError.message}")
+                    interstitialAd = null
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    Log.d(TAG, "Interstitial showed")
+                    stopAllSounds()
+                    webView.evaluateJavascript("javascript:onInterstitialStarted()", null)
+                }
+            }
             interstitialAd?.show(this)
         } else {
-            Log.d("TAG", "Interstitial not ready yet")
+            Log.d(TAG, "Interstitial not ready yet")
         }
     }
 
-fun closeGame() {
+
+    fun closeGame() {
     finish() // Uždaro žaidimą
 }
 
-// Funkcija sustabdyti garsa
-fun stopLoopSound() {
-    loopMediaPlayer?.pause() // Sustabdome garsą
-    loopMediaPlayer?.seekTo(0) // Gražiname į pradžią
-}
-// Funkcija paleisti garsa
-fun playLoopSound() {
-    loopMediaPlayer?.start() // Paleidžiame garsą
-}
+    // Uzdaro zaidima
+    fun stopGame() {
+        stopAllSounds()
+        finish()
+    }
 
-override fun onDestroy() {
-    super.onDestroy()
-    // Atlaisviname MediaPlayer resursus, kai veikla uždaroma
-    loopMediaPlayer?.release()
-    loopMediaPlayer = null
-}
+    private fun stopAllSounds() {
+        stopLoopSound()
+        stopQuizSound()
+        currentSound = null
+    }
 
-// Klase kuri bus susieta su Javascript.
+    fun stopLoopSound() {
+        if (isLoopSoundPlaying) {
+            loopMediaPlayer?.pause()
+            loopMediaPlayer?.seekTo(0)
+            isLoopSoundPlaying = false
+            currentSound = null
+        }
+    }
+
+    fun playLoopSound() {
+        if (!isLoopSoundPlaying) {
+//            stopAllSounds()
+            loopMediaPlayer?.start()
+            isLoopSoundPlaying = true
+            currentSound = "loop"
+        }
+    }
+
+    fun stopQuizSound() {
+        if (isQuizSoundPlaying && quizMediaPlayer != null) {
+            quizMediaPlayer?.pause()
+            quizMediaPlayer?.seekTo(0)
+            isQuizSoundPlaying = false
+            currentSound = null
+        }
+    }
+
+    fun playQuizSound() {
+        if (!isQuizSoundPlaying && quizMediaPlayer != null) {
+//            stopAllSounds()
+            quizMediaPlayer?.start()
+            isQuizSoundPlaying = true
+            currentSound = "quiz"
+        }
+    }
+
+    private fun playSoundBasedOn(sound:String) {
+        when (sound) {
+            "loop" -> {
+                if (loopMediaPlayer != null && !isLoopSoundPlaying) {
+                    playLoopSound()
+                }
+            }
+            "quiz" -> {
+                if (quizMediaPlayer != null && !isQuizSoundPlaying) {
+                    playQuizSound()
+                }
+            }
+            else -> {
+                // Jei currentSound null arba netikėta reikšmė, nieko nedaryti.
+            }
+        }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        loopMediaPlayer?.release()
+        loopMediaPlayer = null
+        quizMediaPlayer?.release()
+        quizMediaPlayer = null
+    }
+
+
+    // Klase kuri bus susieta su Javascript.
 class WebAppInterface(private val mContext: Context,
                       private val activity: MainActivity,
                       private val webView: WebView) {
 
-    @JavascriptInterface
-    fun getSoundPath(soundName: String): String {
-        return when (soundName) {
-            "press" -> "file:///android_asset/sounds/press.wav"
-            "inactive" -> "file:///android_asset/sounds/inactive.mp3"
-            "correct" -> "file:///android_asset/sounds/correct.mp3"
-            "incorrect" -> "file:///android_asset/sounds/incorrect.mp3"
-            "winning" -> "file:///android_asset/sounds/winning.mp3"
-            "finished" -> "file:///android_asset/sounds/finished.mp3"
-            "loop" -> "file:///android_asset/sounds/loop.mp3"
-            "quiz" -> "file:///android_asset/sounds/quiz.mp3"
-            "loose" -> "file:///android_asset/sounds/loose.mp3"
-            else -> ""
+        @JavascriptInterface
+        fun getSoundPath(soundName: String): String {
+            return when (soundName) {
+                "press" -> "file:///android_asset/sounds/press.wav"
+                "inactive" -> "file:///android_asset/sounds/inactive.mp3"
+                "correct" -> "file:///android_asset/sounds/correct.mp3"
+                "incorrect" -> "file:///android_asset/sounds/incorrect.mp3"
+                "winning" -> "file:///android_asset/sounds/winning.mp3"
+                "finished" -> "file:///android_asset/sounds/finished.mp3"
+                "loop" -> "file:///android_asset/sounds/loop.mp3"
+                "quiz" -> "file:///android_asset/sounds/quiz.mp3"
+                "loose" -> "file:///android_asset/sounds/loose.mp3"
+                else -> ""
+            }
         }
-    }
 
 
-    @JavascriptInterface
-    fun showInterstitial() {
-        (mContext as Activity).runOnUiThread {
-            (mContext as MainActivity).showInterstitialAd()
+        @JavascriptInterface
+        fun showInterstitial() {
+            (mContext as Activity).runOnUiThread {
+                (mContext as MainActivity).showInterstitialAd()
+            }
         }
-    }
 
-
-    @JavascriptInterface
-    fun showRewardAd() {
-        (mContext as Activity).runOnUiThread {
-            (mContext as MainActivity).showRewardedAd() // čia teisingai
+        @JavascriptInterface
+        fun onInterstitialStarted() {
+            Log.d("WebAppInterface", "onInterstitialStarted() called from JavaScript")
+            activity.runOnUiThread {
+                activity.stopAllSounds()
+            }
         }
-    }
 
-    @JavascriptInterface
-    fun showToast(toast: String) {
-        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
-    }
-
-    @JavascriptInterface
-    fun playLoopSound() {
-        activity.runOnUiThread {
-            activity.playLoopSound()
+        @JavascriptInterface
+        fun onInterstitialEnded(soundToPlay: String?) {
+            Log.d("WebAppInterface", "onInterstitialEnded() called from JavaScript")
+            activity.runOnUiThread {
+                // Cia JavaScript turi paduoti koki garsa reikia groti
+            }
         }
-    }
 
-    @JavascriptInterface
-    fun stopLoopSound() {
-        activity.runOnUiThread {
-            activity.stopLoopSound()
+        @JavascriptInterface
+        fun onRewardStarted() {
+            Log.d("WebAppInterface", "onRewardStarted() called from JavaScript")
+            activity.runOnUiThread {
+                activity.stopAllSounds()
+            }
         }
-    }
 
-    @JavascriptInterface
-    fun goBack() {
-        // Rodo patvirtinimo langą
-        (mContext as Activity).runOnUiThread {
-            AlertDialog.Builder(mContext)
-                .setTitle("Exit game")
-                .setMessage("Are you sure want to exit?")
-                .setPositiveButton("Yes") { _, _ ->
-                    // Iškviečia closeGame metodą MainActivity
-                    (mContext as MainActivity).closeGame()
-                }
-                .setNegativeButton("No", null)
-                .show()
+        @JavascriptInterface
+        fun onRewardEnded(soundToPlay: String?) {
+            Log.d("WebAppInterface", "onRewardEnded() called from JavaScript")
+            activity.runOnUiThread {
+                activity.playSoundBasedOn(soundToPlay ?: "")
+            }
         }
+
+        @JavascriptInterface
+        fun stopAllSounds() {
+            activity.runOnUiThread {
+                activity.stopAllSounds()
+            }
+        }
+
+        @JavascriptInterface
+        fun showRewardAd() {
+            (mContext as Activity).runOnUiThread {
+                (mContext as MainActivity).showRewardedAd()
+            }
+        }
+
+        @JavascriptInterface
+        fun showToast(toast: String) {
+            Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
+        }
+
+        @JavascriptInterface
+        fun playLoopSound() {
+            activity.runOnUiThread {
+                activity.playLoopSound()
+            }
+        }
+
+        @JavascriptInterface
+        fun stopLoopSound() {
+            activity.runOnUiThread {
+                activity.stopLoopSound()
+            }
+        }
+
+        @JavascriptInterface
+        fun playQuizSound() {
+            activity.runOnUiThread {
+                activity.playQuizSound()
+            }
+        }
+
+        @JavascriptInterface
+        fun stopQuizSound() {
+            activity.runOnUiThread {
+                activity.stopQuizSound()
+            }
+        }
+
+
+        @JavascriptInterface
+        fun goBack() {
+            // Rodo patvirtinimo langą
+            (mContext as Activity).runOnUiThread {
+                // Isaugome currentSound reiksme
+                val tempCurrentSound = activity.currentSound
+                // Sustabdome visus garsus
+                activity.stopAllSounds()
+                AlertDialog.Builder(mContext)
+                    .setTitle("Exit game")
+                    .setMessage("Are you sure want to exit?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        // Iškviečia stopGame metodą MainActivity
+                        (mContext as MainActivity).stopGame()
+                    }
+                    .setNegativeButton("No") { _, _ ->
+                        // Atstatome ankstesne currentSound reiksme
+                        if (tempCurrentSound != null) {
+                            activity.currentSound = tempCurrentSound
+                            // Paleidziam garsa pagal ankstesne currentSound reiksme
+                            activity.playSoundBasedOn(activity.currentSound ?: "")
+                        } else {
+                            activity.currentSound = null
+                        }
+                    }
+                    .show()
+            }
+        }
+
     }
 
-    // Metodas, kuris uždaro žaidimą
-    @JavascriptInterface
-    fun stopGame() {
-        // Uždaro veiklą, tai iš esmės uždarys žaidimą
-        (mContext as Activity).finish()
-    }
-}
+
 
     //Cia sukuriamas webview ir suteikiami jam nustatymai
     @SuppressLint("SetJavaScriptEnabled")
@@ -345,14 +501,7 @@ class WebAppInterface(private val mContext: Context,
                     webViewClient = object : WebViewClient() {
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
-                            // Įterpiame JavaScript kodą po to, kai puslapis bus pilnai įkeltas
-                            val js = """
-                window.addEventListener('backbutton', function(event) {
-                        window.Android.goBack();
-                     event.preventDefault();
-                });
-            """.trimIndent()
-                            evaluateJavascript(js, null)
+
                         }
                     }
                     setBackgroundColor(0)

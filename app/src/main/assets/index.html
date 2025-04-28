@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="file:///android_asset/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="data.js" defer></script>
+    <script src="ad.js" defer></script>
     <script src="config.js" defer></script>
     <script src="sounds.js" defer></script>
     <script src="modals.js" defer></script>
@@ -40,6 +41,14 @@
     </div>
     <div class="loader">
         <p>Loading</p>
+    </div>
+    <div class="level-container">
+        <div class="level-container-h2">
+            <h2>Choose level</h2>
+        </div>
+        <div id="level-selection">
+            <!-- create level buttons with spans here -->
+        </div>
     </div>
     <div class="theme-container">
         <div class="theme-container-h2">
@@ -93,8 +102,12 @@
         </div>
     </div>
     <div id="score">
-        <!-- create points table here -->
+        <!-- create reviewing points here -->
+        <div id="starContainer">
+            <!--        create starts here-->
+        </div>
     </div>
+
     <div class="finished-container">
 <!--        <button id="again-btn"  onclick="playPressSound()">Reset</button>-->
 <!--        <button id="return-btn" onclick="playPressSound()">Start new game</button>-->
@@ -102,6 +115,9 @@
 </div>
 <div class="bubble-container">
     <!-- create bubble here -->
+</div>
+<div id="points-container" class="points-container">
+    Points: <span id="user-total-points">0</span>
 </div>
 <div id="modal" class="modal">
     <div class="modal-content">
