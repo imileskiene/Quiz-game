@@ -11,24 +11,23 @@ window.addEventListener('backbutton', async function(event) {
     event.preventDefault(); // Sustabdome įprastą naršyklės elgesį
 
     if (typeof Android !== "undefined") {
-        try {
-            await stopAllSounds(); // Laukiame, kol garsai bus sustabdyti
             Android.goBack(); // Po sustabdymo grįžtame
-        } catch (error) {
-            console.error("Error stopping sounds:", error);
-        }
     } else {
         // Jei esame ne Android aplinkoje, tiesiog grįžtame atgal
         window.history.back();
     }
 });
 
+function sendSupportEmail() {
+        console.log("Button clicked");
+        if (typeof Android !== "undefined" && Android.sendSupportEmail) {
+            console.log("Calling Android interface");
+            Android.sendSupportEmail();
+        } else {
+            console.log("Fallback to mailto");
+            window.location.href = "mailto:...";
+        }
+    }
 
 
-// Po lygio pabaigos
-//Android.showInterstitial();
-
-//function levelComplete() {
-//    // parodyti rezultatą...
-//    Android.showInterstitial();
-//}
+//Quizly: Color Challenge

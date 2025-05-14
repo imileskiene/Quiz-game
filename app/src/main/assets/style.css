@@ -17,12 +17,13 @@
     padding: 0;
     box-sizing: border-box;
 
-    /* font-family: "Roboto", serif; */
+
 }
 
 body {
     background: linear-gradient(to left, violet, rgb(60, 60, 205));
-    /* backdrop-filter: blur(40px);  */
+    height: 100vh;
+
 }
 
 .container {
@@ -47,11 +48,11 @@ display:none;
 #rules h1{
 font-family: "Chewy", serif;
         /*font-size: 20vw;*/
-        font-size: clamp(40px, 20vw, 150px);
+        font-size: clamp(15px, 15vw, 60px);
         font-weight: 400;
         text-align: center;
         font-style: normal;
-        margin-bottom: 7%;
+        margin-bottom: 5%;
     color:rgb(237, 227, 179);
     text-shadow:0 5px 10px black;
 }
@@ -143,18 +144,13 @@ list-style: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position:fixed;
-    top:40%;
-    left:50%;
-    transform:translate(-50%, -50%);
-
 }
 
 .start-container h1 {
     width: 100%;
     font-family: "Chewy", serif;
     /*font-size: 20vw;*/
-    font-size: clamp(40px, 20vw, 150px);
+    font-size: clamp(15px, 15vw, 60px);
     font-weight: 400;
     text-align: center;
     font-style: normal;
@@ -300,10 +296,12 @@ text-shadow:0 5px 10px black;
     scale: 1.05;
 }
 
-.start-container i:nth-of-type(2){
-    font-size: 100px;
-    /*margin-bottom: 20px;*/
-    color: gold;
+.startowl-image{
+    width: 250px;
+    /*height: 250px;*/
+opacity: 0;
+    animation: fadeIn 2s ease-out forwards;
+    /*margin-top:30px;*/
 }
 
 
@@ -489,7 +487,7 @@ font-family: "Chewy", serif;
 .theme-container, .level-container {
     width: 100%;
     display:none;
-    margin-top:70px;
+    margin-top:90px;
 }
 
 .theme-container-h2, .level-container-h2{
@@ -506,7 +504,7 @@ font-family: "Chewy", serif;
         border-radius: 10px;
         /*margin-bottom:20px;*/
         box-shadow: 2px 10px 20px rgb(237, 227, 179);
-        margin-bottom:30px;
+        margin-bottom:50px;
    }
 
  .theme-container h2, .level-container h2 {
@@ -523,10 +521,10 @@ font-family: "Chewy", serif;
 
 #theme-selection, #level-selection {
     display: flex;
-    flex-direction: column; /* Elementai dėstomi stulpeliu */
-    align-items: center; /* Centruojami horizontaliai */
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-    height:calc(var(--vh, 1vh) * 80);
+    height:calc(var(--vh, 1vh) * 75);
 }
 
 #level-selection{
@@ -535,7 +533,7 @@ overflow-y: auto;
 }
 
 #theme-selection{
-margin-top:23%;
+margin-top:25%;
 overflow:scroll;
 }
 
@@ -695,33 +693,7 @@ display:none;
 
 
 
-/*.quiz-container h2 {
 
-    min-width:90%;
-    font-size: clamp(1.3rem, 4vw, 3rem);
-    margin: 15px 5px 50px 5px;
-    padding: 5px 20px 5px 20px;
-    background: inherit;
-    color: #fff;
-    box-shadow: 5px 5px 20px white;
-    height: calc(var(--vh, 1vh) * 20);
-    max-height: calc(var(--vh, 1vh) * 20);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    font-family: "Coiny", serif;
-    font-weight: 400;
-    font-style: normal;
-overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.quiz-container h2::-webkit-scrollbar {
-    display: none; /
-}*/
 .quiz-container h2 {
     min-width: 90%;
     font-size: clamp(1.3rem, 4vw, 3rem);
@@ -733,8 +705,6 @@ overflow-y: auto;
     height: calc(var(--vh, 1vh) * 20); /* Nustatome fiksuotą aukštį */
     max-height: calc(var(--vh, 1vh) * 20); /* Apribojame maksimalų aukštį */
     border-radius: 15px;
-   /* display: flex; */ /* Pašaliname flex */
-   /* align-items: center; */ /* Pašaliname align-items */
     text-align: center;
     font-family: "Coiny", serif;
     font-weight: 400;
@@ -744,7 +714,8 @@ overflow-y: auto;
     scrollbar-width: none; /* Paslepia slinkties juostą Firefox */
     -ms-overflow-style: none; /* Paslepia slinkties juostą IE/Edge */
     word-break: break-word; /* Leidžia ilgiems žodžiams lūžti į naujas eilutes */
-    position: relative; /* Pridedame, kad galetume vidinį elementą pozicionuoti */
+     /* Pridedame, kad galetume vidinį elementą pozicionuoti */
+    z-index: 2;
 }
 
 .quiz-container h2 > * {
@@ -768,11 +739,11 @@ overflow-y: auto;
     height: calc(var(--vh, 1vh) * 7);
     top: 19%;
     left: 50%;
-    padding: 3px;
+    /*padding: 1px;*/
     transform: translateX(-50%) scaleX(0.9);
-    background: rgb(155, 75, 239);
+    background: rgb(155, 75, 239, 0.2);
     border: 6px solid gold;
-    border-radius: 50%;
+    border-radius: 20px;
     text-align: center;
     font-family: "Coiny", serif;
     font-weight: 400;
@@ -780,21 +751,32 @@ overflow-y: auto;
     color: gold;
     /*font-size: 25px;*/
     font-size: clamp(24px, 5vw, 35px);
+    z-index: 2;
+}
+
+.answer-wrapper {
+   position: absolute;
+      top: calc(var(--vh, 1vh) * 25); /* aukštis viršuje po H2 */
+      bottom: calc(var(--vh, 1vh) * 15); /* prieš helper-container */
+      left: 0;
+      right: 0;
+      overflow-y: auto;
+      padding: 10px;
+      z-index: 1;
 }
 
 #answer-button{
-    overflow: scroll;
-    width: 100%;
-    max-height: 30%;
-    background: #bfff80;
-     display: flex; /* Pridėta flex sistema */
-        flex-direction: column; /* Išdėstomi stulpeliu */
-        align-items: center; /* Centruojama */
+    display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+
 }
 
 .btn, .incorrect-answer-btn, .correct-answer-btn {
     /*width: 300px;
     max-width: 300px;*/
+    position: relative;
     width: 80%;
         max-width: 400px;
     min-height: calc(var(--vh, 1vh) * 9);
@@ -811,6 +793,7 @@ overflow-y: auto;
     cursor: pointer;
     font-size: clamp(16px, 5vw, 30px);
     white-space:wrap;
+    overflow: hidden;
 
 }
 
@@ -882,7 +865,7 @@ overflow-y: auto;
     align-items: center;
     justify-content: space-evenly;
     margin: 0 auto;
-    /* z-index: 1; */
+    z-index: 2;
 }
 
 .icon {
@@ -916,6 +899,7 @@ color:yellow;
     align-items: center;
     /* margin-bottom: 10px; */
     animation: movebottom 0.6s ease-out forwards;
+    z-index: 10;
   }
 
   @keyframes movebottom {
@@ -938,6 +922,7 @@ color:yellow;
     font-size:375px;
     color: black;
     position: relative;
+
   }
 
   .mobile-screen {
@@ -954,6 +939,7 @@ color:yellow;
     display: flex;
     align-items: center;
     justify-content: center;
+
   }
 
   .mobile-screen p{
@@ -986,6 +972,7 @@ color:yellow;
     padding: 2px;
     border: none;
     cursor: pointer;
+    z-index: 10;
   }
 
   .mobile-close-btn:hover{
@@ -1059,98 +1046,11 @@ color:yellow;
       }
 
 
-/*
-#score{
-position:fixed;
-top:50%;
-left:50%;
-transform: translate(-50%, -50%);
-width: 90%;
-    display: none;
-    text-align:center;
-
-}
-
-
-
-.correct {
-    background-color: rgb(105, 237, 35);
-}
-
-.incorrect {
-    background-color: rgb(237, 35, 35);
-}
-*/
-
-/*.popup, .lost {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    height: calc(var(--vh, 1vh) * 30);
-    background: #7a00ff;
-    /*border: 10px dotted gold;*/
-    /*border-radius: 25px;
-    font-size: 2.2rem;
-    text-align: center;
-        font-family: "Coiny", serif;
-        font-weight: 400;
-        font-style: normal;
-    padding: 10px;
-    display: flex;
-    gap: 20px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-color: gold;
-}
-
-.popup{
-box-shadow: 0 0 20px gold;
-}
-
-.lost{
-box-shadow: 0 0 20px red;
-}
-
-.popup::before, .lost::before {
-    content: "";
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border-radius: 25px;
-    border: 10px dotted gold;
-    opacity: 1;
-    animation: fade-dots 0.3s linear infinite alternate;
-}
-
-.popup::before {
-    border: 10px dotted gold;
-}
-
-.lost::before{
-border: 10px dotted red;
-}
-
-/* Animacija: kas antras taškas keičia opacity */
-/*@keyframes fade-dots {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0.5;
-    }
-}*/
-
 
 .finished-container {
     position: fixed;
     width: 90%;
-    top: 40%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 1.5rem;
@@ -1171,16 +1071,12 @@ border: 10px dotted red;
     letter-spacing: 0.03em;
 }
 
-#again-btn {
-    width: 500px;
+#again-btn, #return-btn, .support-btn {
+    width: 250px;
     max-width: 250px;
-    min-height: calc(var(--vh, 1vh) * 9);
-    padding: 10px;
-    margin: 10px;
     color: white;
     text-shadow: 7px 5px 9px black;
     box-shadow: 10px 10px 20px rgb(76, 15, 199);
-    background: rgb(182, 240, 8);
     font-size: 1.5rem;
     font-family: "Coiny", serif;
     font-weight: 400;
@@ -1189,22 +1085,26 @@ border: 10px dotted red;
     border-radius: 20px;
 }
 
-#return-btn {
-    width: 500px;
-    max-width: 250px;
-    min-height: calc(var(--vh, 1vh) * 9);
-    padding: 10px;
+#again-btn, #return-btn{
+min-height: calc(var(--vh, 1vh) * 9);
+padding: 10px;
     margin: 10px;
-    color: white;
-    text-shadow: 7px 5px 9px black;
-    box-shadow: 10px 10px 20px rgb(76, 15, 199);
+
+}
+
+#again-btn{
+background: rgb(182, 240, 8);
+}
+
+#return-btn {
     background: rgb(240, 132, 8);
-    font-size: 1.5rem;
-    font-family: "Coiny", serif;
-    font-weight: 400;
-    font-style: normal;
-    border: none;
-    border-radius: 20px;
+}
+
+.support-btn{
+    min-height: calc(var(--vh, 1vh) * 6);
+    padding: 5px;
+    margin: 5px;
+    background: DodgerBlue;
 }
 
 .bubble-container {
@@ -1265,39 +1165,64 @@ background:inherit;
 
 .points-container{
 position: fixed;
+min-width:150px;
     width: auto;
-    height: calc(var(--vh, 1vh) * 7);
-    top: 2%;
+    height: calc(var(--vh, 1vh) * 5);
+    top: 3%;
     left: 5%;
-    padding: 3px 10px;
-    background: background: linear-gradient(to left, rgb(60, 60, 205), violet);
+    margin-bottom:10px;
+    /*padding: 2px;*/
+    background: linear-gradient(to left, rgb(60, 60, 205), violet);
     border: 4px solid gold;
     border-radius: 20px;
-    text-align: center;
+
+display:none;
+}
+
+.coins{
+position: absolute;
+background: gold;
+width: 35px;
+height:35px;
+border-radius: 50%;
+vertical-align: middle;
+ /*left: 5px;*/
+ padding:0;
+ margin:0;
+}
+
+.user-total-points{
+position: absolute;
     font-family: "Coiny", serif;
     font-weight: 400;
     font-style: normal;
     color: gold;
-    /*font-size: 25px;*/
     font-size: clamp(24px, 5vw, 35px);
-display:none;
+    vertical-align: middle;
+    right: 10px;
 }
 
 /**********************SCORE****************/
 #score {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /*display: flex;
+    flex-direction: column;  iš viršaus į apačią
+    justify-content: center;
+    align-items: center;*/
   min-height: calc(var(--vh, 1vh) * 10);
   width: 100vw;
 }
+.owl-reaction-img{
+width: 250px;
+margin: 50px auto;
+}
+
 
 .answer-card {
   width: 300px;
   height: 180px;
-  perspective: 1500px;  /* Pabandykite padidinti perspektyvą */
+  perspective: 1500px;
   position: relative;
-  top: 50%;
+  top: 10%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -1338,20 +1263,23 @@ display:none;
 }
 .card-front {
 
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Šešėlis */
+  box-shadow: 5px 5px 20px gold;
 }
 
 .card-back {
 
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Šešėlis */
+  box-shadow: 2px 5px 20px gold;
 }
 
 #starContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+      /*background:black;*/
+      bottom: 5px;
+      width: 100%;
+      min-height: calc(var(--vh, 1vh) * 100);
+      display: none;
+      overflow: hidden;
+      z-index: -1;
   pointer-events: none; /* Kad žvaigždės neblaškytų kitų elementų */
 }
 
@@ -1375,3 +1303,10 @@ display:none;
   }
 }
 
+.owl-finished {
+      display: block;
+      margin: 0 auto;
+      width: 250px;
+      height: auto;
+      margin-bottom: 20px;
+    }

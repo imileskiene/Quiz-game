@@ -1,6 +1,5 @@
 
 let quizSoundPlaying = false;
-//let quizSoundPromise = null; // Naujas kintamasis saugoti quiz garso Promise
 let loopSoundMuted = false;
 let quizSoundMuted = false;
 let currentSound = null;
@@ -12,19 +11,24 @@ const sounds = new Map([
     ["notActiveSound", new Audio(window.Android.getSoundPath("inactive"))],
     ["winning", new Audio(window.Android.getSoundPath("winning"))],
     ["finished", new Audio(window.Android.getSoundPath("finished"))],
-    ["quiz", new Audio(window.Android.getSoundPath("quiz"))],
     ["loose", new Audio(window.Android.getSoundPath("loose"))]
 ]);
 
+
 async function playOtherSounds(type) {
-    const sound = sounds.get(type);
-    if (sound) {
-        return new Promise((resolve) => {
-            sound.muted = false;
-            sound.play();
-            sound.addEventListener("ended", resolve, { once: true });
-        });
-    }
+  const sound = sounds.get(type);
+  if (sound) {
+    // Atstatyti laiką ir sukurti naują audio, jei jau buvo grotas anksčiau
+    sound.currentTime = 0;
+
+    return new Promise((resolve) => {
+      sound.muted = false;
+      sound.play().catch(() => resolve()); // Jei klaida – nestringa
+      sound.addEventListener("ended", resolve, { once: true });
+    });
+  } else {
+    return Promise.resolve(); // Jei garsas nerastas – neblokuoti kodo
+  }
 }
 
 // Funkcija sustabdyti visus garsus ir juos užmutinti
@@ -50,23 +54,7 @@ async function playSound(type) {
         });
     }
 }
-// Funkcija, kuri nutildo loop garsą
-//async function muteLoopSound() {
-//    console.log("muteLoopSound()");
-//    if (!loopSoundMuted && typeof Android !== "undefined") {
-//        await Android.stopLoopSound();
-//        loopSoundMuted = true;
-//    }
-//}
 
-// Funkcija, kuri vėl įjungia loop garsą
-//async function unmuteLoopSound() {
-//    console.log("unmuteLoopSound()");
-//    if (loopSoundMuted && typeof Android !== "undefined") {
-//        await Android.playLoopSound();
-//        loopSoundMuted = false;
-//    }
-//}
 // Loop garso paleidimas
 async function playLoopSound() {
     if (typeof Android !== "undefined") {
@@ -83,61 +71,18 @@ async function stopLoopSound() {
    await Android.stopLoopSound();
   }
 }
-// Funkcija, kuri nutildo quiz garsą
-//async function muteQuizSound() {
-//    console.log("muteQuizSound()");
-//    if (!quizSoundMuted) {
-//        await stopQuizSound();
-//        quizSoundMuted = true;
-//    }
-//}
-
-// Funkcija, kuri vėl įjungia quiz garsą
-//async function unmuteQuizSound() {
-//    console.log("unmuteQuizSound()");
-//    if (quizSoundMuted) {
-//         await playQuizSound();
-//        quizSoundMuted = false;
-//    }
-//}
 
 async function playQuizSound() {
-    if (!quizSoundPlaying) {
-        const sound = sounds.get("quiz");
-        if (sound) {
-            await stopAllSounds()
-            sound.loop = true; // pridedama kilpa
-            sound.muted = quizSoundMuted;
-            sound.play();
-            quizSoundPlaying = true;
+   if (typeof Android !== "undefined") {
+        if (!quizSoundMuted) {
+            await Android.playQuizSound();
             currentSound = "quiz";
         }
     }
 }
 
 async function stopQuizSound() {
-    if (quizSoundPlaying) {
-        const sound = sounds.get("quiz");
-        sound.pause();
-        sound.currentTime = 0;
-        sound.loop = false;// pašalinam kilpa
-        quizSoundPlaying = false;
+    if (typeof Android !== "undefined") {
+        await Android.stopQuizSound();
     }
 }
-// Funkcija sustabdyti visus kitus garsus, išskyrus loop ir quiz
-function muteAllOtherSounds() {
-    for (const [key, sound] of sounds.entries()) {
-        if (key !== "quiz") { // neimutiname quiz garso
-            sound.muted = true; // Nutildome garsą
-            sound.pause();
-            sound.currentTime = 0;
-        }
-    }
-}
-
-  // Funkcija atkurti visus kitus garsus
-   function unmuteAllOtherSounds() {
-       for (const [key, sound] of sounds.entries()) {
-           sound.muted = false;
-       }
-   }

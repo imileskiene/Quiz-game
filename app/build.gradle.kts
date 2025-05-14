@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.testbanner"
-        minSdk = 24
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation ("com.google.android.gms:play-services-ads:23.0.0")
+    implementation (libs.androidx.core.splashscreen)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

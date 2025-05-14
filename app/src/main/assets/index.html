@@ -17,27 +17,26 @@
 <body>
 <div class="container">
     <div id="rules">
-        <h1>Rules</h1>
-        <p>Hello! 😊
-            I'm delighted that you've chosen this game! I invite you to dive into this wonderful world and test your knowledge. I hope that the game will not only be fun but will also help you discover many new and interesting facts!
-            You can choose any of the available themes; each theme contains 13 questions. The questions are not difficult, but to make it more interesting, a few more challenging ones may appear.
-            Before you start, I suggest familiarizing yourself with the game instructions to get the most out of it and enjoy the game.
-            Don't worry if you forget what a button means; you can always refer to the instructions during the game by pressing the "?" button.</p>
+        <h1>Information</h1>
+        <p>I'm delighted that you've chosen this game! I invite you to explore this amazing world of knowledge and put your skills to the test. I hope that the game will not only be fun but will also help you discover many new and interesting facts!</p>
+        <p>To check the instructions for the game, press the "?" button.</p>
         <button class="instructionBtn">
             <i class="fa-solid fa-circle-question"></i>
         </button>
-
-        <p>If everything is clear, press the "Next" button.
-            I wish you a pleasant and interesting game!</p>
+        <p>If you encounter any bugs, issues, or just want to share feedback — feel free to contact us by email!</p>
+        <button id="support-btn" onclick="sendSupportEmail()" class="support-btn">Contact Us</button>
+        <p>We're happy to hear from you!</p>
+        <p>If everything is clear, press the "Next" button. I wish you a pleasant and interesting game!</p>
         <button id="next-btn">Next</button>
     </div>
 
     <div class="start-container">
-        <h1>Quiz game</h1>
-        <p>Challenge your knowledge!</p>
+        <h1>Quizly: Color Challenge</h1>
+<!--        <p>Challenge your knowledge!</p>-->
+        <p>Are you ready? Let's go!</p>
         <i class="fa-regular fa-hand-point-down"></i>
         <button class="start-btn">Play now</button>
-        <i class="fa-solid fa-chess-queen fa-spin"></i>
+        <img src="images/startowl.png" alt="start owl" class="startowl-image">
     </div>
     <div class="loader">
         <p>Loading</p>
@@ -62,18 +61,19 @@
         <label>
             <input type="text" readonly class="points-value">
         </label>
-
-        <!-- <i class="fa-solid fa-euro-sign" style="color: #fffb00;"></i> -->
         <h2 id="question"></h2>
-        <div id="answer-btn">
-            <!-- Create answer button here -->
-            <!-- <i class="fa-solid fa-face-frown" style="color: #FFD43B;"></i>
-            <i class="fa-solid fa-thumbs-up" style="color: #FFD43B;"></i> -->
+        <div class="answer-wrapper">
+            <div id="answer-btn">
+                <!-- Create answer button here -->
+                <!-- add icon fa-solid fa-face-frown
+                add icon fa-solid fa-thumbs-up -->
+            </div>
         </div>
+
         <div class="helper-container">
-            <!-- <i class="fa-regular fa-comment-dots" style="color: #B197FC;"></i>
-            <i class="fa-solid fa-tty" style="color: #74C0FC;"></i>
-            <i class="fa-solid fa-square-phone" style="color: #B197FC;"></i> -->
+            <!-- add icon fa-regular fa-comment-dots
+            add icon fa-solid fa-tty
+            add icon fa-solid fa-square-phone -->
             <div class="icon">
                 <p>Back</p>
                 <button class="backBtn">
@@ -102,22 +102,24 @@
         </div>
     </div>
     <div id="score">
-        <!-- create reviewing points here -->
-        <div id="starContainer">
-            <!--        create starts here-->
-        </div>
+        <!-- create reviewing cards points here -->
     </div>
 
     <div class="finished-container">
-<!--        <button id="again-btn"  onclick="playPressSound()">Reset</button>-->
-<!--        <button id="return-btn" onclick="playPressSound()">Start new game</button>-->
+<!--        add owlfinised image-->
+<!--     create reset button-->
+<!--        create start new game button-->
     </div>
 </div>
 <div class="bubble-container">
     <!-- create bubble here -->
 </div>
+<div id="starContainer">
+    <!--        create starts here-->
+</div>
 <div id="points-container" class="points-container">
-    Points: <span id="user-total-points">0</span>
+    <div class="coins"></div>
+    <span id="user-total-points" class="user-total-points">0</span>
 </div>
 <div id="modal" class="modal">
     <div class="modal-content">
@@ -129,14 +131,17 @@
     <ul id="instruction-content">
         <li> <i class="fa-solid fa-thumbs-up" style="color: #FFD43B;"></i> - correct answer</li>
         <li><i class="fa-solid fa-face-frown" style="color: #FFD43B;"></i> - incorrect answer</li>
-        <li>Back <i class="fa-solid fa-circle-left"></i> - Return to themes list</li>
-        <li>Call <i class="fa-solid fa-mobile-screen-button" ></i> - show correct answer(1 use).</li>
-        <li>2/4 <i class="fa-solid fa-bolt"  style="color: aqua;"></i> - mark two incorrect answers(1 use).</li>
+        <li>Back <i class="fa-solid fa-circle-left"></i> - return to levels</li>
+        <li>Call <i class="fa-solid fa-mobile-screen-button" ></i> - show correct answer (one help is free).</li>
+        <li>2/4 <i class="fa-solid fa-bolt"  style="color: aqua;"></i> - mark two incorrect answers (one help is free).</li>
         <li>Total points - Your score.</li>
-        <li>Reset button- play one more time the same theme.</li>
+        <li>Reset button - play the same theme one more time.</li>
         <li>Start new game button- choose the other theme</li>
+        <li><button id="support-btn-second" onclick="sendSupportEmail()" class="support-btn">Contact Us</button></li>
     </ul>
     <button class="closeBtn">Close</button>
 </div>
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999;"></div>
+
 </body>
 </html>

@@ -3,21 +3,12 @@
 function showInterstitial(){
     window.Android.showInterstitial();
 }
-//function showInterstitial() {
-//    return new Promise((resolve, reject) => {
-//        window.Android.showInterstitial();
-//
-//        // Kviečiame metodą, kai reklama baigiasi
-//        window.Android.onInterstitialEnded = () => {
-//            console.log("Interstitial ad ended.");
-//            resolve(); // Užbaigiame promise, kad pereitumėte prie kito žingsnio
-//        };
-//    });
-//}
+function showAdError() {
+    alert("Sorry, the service is currently unavailable. Please try again later.");
+}
 
 function showRewardAd() {
     console.log("showRewardAd() called");
-    // Kviečiame Android'o "Android" objektą (sukurtą per addJavascriptInterface).
     window.Android.showRewardAd();
 }
 
@@ -31,21 +22,17 @@ function onInterstitialStarted() {
     soundsMuted = true;
 }
 
-// Nauja funkcija, kuri bus iškviesta iš Android'o, kai bus baigta rodyti interstitial reklama
-//async function onInterstitialEnded() {
-//    console.log("onInterstitialEnded() called from Android");
-//    soundsMuted = false;
-//    if(currentSound == "loop"){
-//       await playLoopSound()
-//    } else if(currentSound == "quiz"){
-//      await playQuizSound()
-//    }
-//}
 function onInterstitialEnded() {
     console.log("onInterstitialEnded() called from Android");
     soundsMuted = false;
 
-    // Atsnaukiame garsą, kai reklama baigiasi
+    // kai reklama baigiasi, pereinam prie kito container
+    if (typeof window.nextContainer === "function") {
+        window.nextContainer();
+        window.nextContainer = null; // išvalom, kad netyčia nesikartotų
+    }
+
+    // atnaujinam garsus
     if (currentSound == "loop") {
         playLoopSound();
     } else if (currentSound == "quiz") {
@@ -70,3 +57,16 @@ async function onRewardEnded() {
     }
 }
 
+function callNextContainer() {
+    if (window.nextContainer && typeof window.nextContainer === 'function') {
+        window.nextContainer(); // Kviečiame nextContainer, jei jis egzistuoja
+    } else {
+      rulesContainer.style.display = "block";
+      overlayContainer.style.display = "none";
+    }
+}
+
+// Funkcija pašalinti overlay
+function removeOverlay() {
+    overlayContainer.style.display = "none";
+}

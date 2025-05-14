@@ -45,9 +45,6 @@ function mobileIconPopup(){
   mobilePopup.appendChild(iconWrapper);
   quizContainer.appendChild(mobilePopup);
 
-  // Išjungiam mobileBtn, kad nebūtų galima kelis kartus spausti
-  //mobileBtn.disabled = true;
-
   mobileCloseBtn.addEventListener("click", ()=>{
     mobilePopup.remove();
   });
@@ -71,8 +68,9 @@ function showRewardPopupDiv() {
         showAdBtn.textContent = "Watch Ad";
         showAdBtn.classList.add("show-ad-btn");
         showAdBtn.addEventListener("click", () => {
-            showRewardAd(); // Kviečiam reklama
-            rewardPopupContainer.remove(); // Pašalinam popupa
+        overlayContainer.style.display = "block";
+            showRewardAd();
+            rewardPopupContainer.remove();
         });
         rewardPopupContainer.appendChild(showAdBtn);
 
@@ -81,13 +79,13 @@ function showRewardPopupDiv() {
         closeBtn.textContent = "X";
         closeBtn.classList.add("close-reward-btn");
         closeBtn.addEventListener("click", () => {
-            rewardPopupContainer.remove(); // Panaikina visą div
+            rewardPopupContainer.remove();
         });
         rewardPopupContainer.appendChild(closeBtn);
 
         quizContainer.appendChild(rewardPopupContainer);
     }else{
-        rewardPopupContainer.remove(); // Panaikina visą div
+        rewardPopupContainer.remove();
     }
 }
 
@@ -102,79 +100,82 @@ function backBtnPopup() {
 
     // Sukuriame tekstą
     const backBtnPopupText = document.createElement("p");
-    backBtnPopupText.textContent = "Going back now will reset your score. Return to the levels?";
+    backBtnPopupText.textContent = "Going back now will reset your score. Return to levels?";
     backBtnContainer.appendChild(backBtnPopupText);
 
     // Sukuriame mygtuką "Yes"
     const showApplyBtn = document.createElement("button");
-    showApplyBtn.textContent = "Yes";
-    showApplyBtn.classList.add("show-apply-btn");
+            showApplyBtn.textContent = "Yes";
+            showApplyBtn.classList.add("show-apply-btn");
 
-    showApplyBtn.addEventListener("click", () => {
-      // Jei vartotojas paspaudžia "Yes"
-      backBtnContainer.remove(); // Panaikiname modalą
-      showInterstitial(); // Parodome reklamas
-      returnToLevels(); // Grįžtame į lygių ekraną
+            // Sukuriame mygtuką "Yes" logiką
+            showApplyBtn.addEventListener("click", async () => {
+                await playOtherSounds("press"); // paleidziam garsa
+                // Panaikiname modalą
+                backBtnContainer.remove();
+
+                if (typeof Android !== "undefined") {
+                    console.log("Yes button clicked - Android environment detected");
+                    // Uždengiame viską prieš reklamą
+                    overlayContainer.style.display = "block";
+
+                    // Nustatome, kas turi vykti po reklamos rodymo
+                    window.nextContainer = () => {
+                        console.log("nextContainer called - after interstitial");
+                        // Nuimame overlay, kad parodytume lygių ekraną
+                        overlayContainer.style.display = "none";
+                        // Grįžtame į lygių ekraną
+                        returnToLevels();
+                    };
+
+                    // Paleidžiame tarpinę reklamą
+                    showInterstitial();
+                } else {
+                    // Jei kodas vykdomas ne Android aplinkoje
+                    console.log("Yes button clicked - non-Android environment");
+                    // Grįžtame į lygių ekraną be reklamos
+                    returnToLevels();
+                }
+            });
+
+            backBtnContainer.appendChild(showApplyBtn);
+
+            // Sukuriame uždarymo mygtuką
+            const closeBtn = document.createElement("button");
+            closeBtn.textContent = "X";
+            closeBtn.classList.add("close-back-btn");
+            closeBtn.addEventListener("click", async () => {
+                await playOtherSounds("press"); // paleidziam garsa
+                backBtnContainer.remove(); // Pašalina modalą
+            });
+
+            backBtnContainer.appendChild(closeBtn);
+
+            quizContainer.appendChild(backBtnContainer);
+        } else {
+            backBtnContainer.remove();
+        }
+    }
+
+    backBtn.addEventListener("click", async () => {
+        await playOtherSounds("press");
+        backBtnPopup();
+        stopQuizSound();
     });
-
-    backBtnContainer.appendChild(showApplyBtn);
-
-    // Sukuriame uždarymo mygtuką
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "X";
-    closeBtn.classList.add("close-back-btn");
-    closeBtn.addEventListener("click", async () => {
-      await playOtherSounds("press");
-      await playQuizSound();
-      backBtnContainer.remove(); // Pašalina modalą
-    });
-
-    backBtnContainer.appendChild(closeBtn);
-
-    quizContainer.appendChild(backBtnContainer); // Įdedame modalą į žaidimo konteinerį
-  } else {
-    backBtnContainer.remove(); // Jei modalas jau yra, uždarome jį
-  }
-}
 
 function returnToLevels() {
   // Grįžtame į lygių ekraną
   updateUserPointsDisplay(); // Atnaujiname taškų skaičių
-  levelContainer.style.display = "block"; // Parodome lygius
-  pointsContainer.style.display = "block"; // Parodome taškų informaciją
-  quizContainer.style.display = "none"; // Paslepiame klausimų ekraną
-  bubbleContainer.style.display = "none"; // Paslepiame burbulą
-  stopLoopSound(); // Sustabdome garso ciklą
-  playLoopSound(); // Grojame garso ciklą
+  levelContainer.style.display = "block";
+  pointsContainer.style.display = "block";
+  quizContainer.style.display = "none";
+  bubbleContainer.style.display = "none";
+  stopLoopSound();
+  playLoopSound();
 }
 
-//function popUp(row, callback) {
-//  const popup = document.createElement("div");
-//  const popupText = document.createElement("p");
-//  popupText.classList.add("popupTxt");
-//  popup.classList.add("popup");
-//
-//  // Įdedame tekstą
-//  popupText.textContent = "Congratulations! Your winning points:";
-//  popup.appendChild(popupText);
-//
-//  // Nukopijuojame eilutės HTML turinį
-//  const rowClone = document.createElement("div");
-//  rowClone.innerHTML = row.innerHTML;
-//
-//  popup.appendChild(rowClone); // Dabar eilutė bus po tekstu
-//
-//  document.body.appendChild(popup);
-//
-//  playSound("winning");
-//
-//  setTimeout(() => {
-//    popup.remove();
-//    if (callback) callback(); // Toliau vykdoma kita funkcija
-//  }, 2500);
-//}
 
-function popUp(row, isCorrect, callback) { // Pridedame isCorrect parametrą
+function popUp(row, isCorrect, callback) {
     const popup = document.createElement("div");
     const popupText = document.createElement("p");
     popupText.classList.add("popupTxt");
