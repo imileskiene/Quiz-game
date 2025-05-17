@@ -1,4 +1,4 @@
-package com.example.testbanner.ui.theme
+package com.inbit.quizColorChallenge.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

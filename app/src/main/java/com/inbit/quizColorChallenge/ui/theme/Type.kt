@@ -1,4 +1,4 @@
-package com.example.testbanner.ui.theme
+package com.inbit.quizColorChallenge.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

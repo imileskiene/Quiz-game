@@ -1,4 +1,4 @@
-package com.example.testbanner
+package com.inbit.quizColorChallenge
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.webkit.JavascriptInterface
@@ -61,6 +62,8 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+//import com.example.testbanner.R
+
 
 class MainActivity : ComponentActivity() {
     private var webView: WebView? = null
@@ -222,7 +225,7 @@ class MainActivity : ComponentActivity() {
                     // Banner reklamos konteineris (Perkeliame i Column)
                     AnimatedVisibility(
                         visible = isBannerVisibleState.value,
-                        exit = fadeOut(animationSpec = tween(durationMillis = 100))
+                        exit = fadeOut(animationSpec = tween(durationMillis = 80))
                     ) {
                         Box(
                             modifier = Modifier
@@ -268,10 +271,24 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun hideSystemUI() {
-        window.insetsController?.let { controller ->
-            controller.hide(WindowInsets.Type.systemBars())
-            controller.systemBarsBehavior =
-                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30+
+            window.insetsController?.let { controller ->
+                controller.hide(WindowInsets.Type.systemBars())
+                controller.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            // API < 30 (senesni metodai)
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    )
         }
     }
 
@@ -642,7 +659,6 @@ class MainActivity : ComponentActivity() {
                 "correct" -> "file:///android_asset/sounds/correct.mp3"
                 "incorrect" -> "file:///android_asset/sounds/incorrect.mp3"
                 "winning" -> "file:///android_asset/sounds/winning.mp3"
-                "finished" -> "file:///android_asset/sounds/finished.mp3"
                 "loop" -> "android.resource://com.example.testbanner/raw/loop"
                 "quiz" -> "android.resource://com.example.testbanner/raw/quiz"
                 "loose" -> "file:///android_asset/sounds/loose.mp3"

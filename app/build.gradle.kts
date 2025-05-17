@@ -5,12 +5,21 @@ plugins {
 }
 
 android {
-    namespace = "com.example.testbanner"
+    namespace = "com.inbit.quizColorChallenge"
     compileSdk = 35
 
+    signingConfigs { // PRIDĖTA PASIRAŠYMO KONFIGŪRACIJA
+        create("release") {
+//            storeFile = file(project.property("MYAPP_RELEASE_STORE_FILE") as String)
+//            storePassword = project.property("MYAPP_RELEASE_STORE_PASSWORD") as String
+//            keyAlias = project.property("MYAPP_RELEASE_KEY_ALIAS") as String
+//            keyPassword = project.property("MYAPP_RELEASE_KEY_PASSWORD") as String
+        }
+    }
+
     defaultConfig {
-        applicationId = "com.example.testbanner"
-        minSdk = 30
+        applicationId = "com.inbit.quizColorChallenge"
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -20,11 +29,18 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isDebuggable = true
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -36,6 +52,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 

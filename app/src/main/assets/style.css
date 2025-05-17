@@ -1,11 +1,11 @@
 @font-face {
-    font-family: 'Chewy';
-    src: url('file:///android_asset/fonts/Chewy-Regular.ttf') format('truetype');
+  font-family: 'Chewy';
+  src: url('fonts/Chewy-Regular.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Coiny';
-    src: url('file:///android_asset/fonts/Coiny-Regular.ttf') format('truetype');
+  font-family: 'Coiny';
+  src: url('fonts/Coiny-Regular.ttf') format('truetype');
 }
 
 
@@ -21,7 +21,7 @@
 }
 
 body {
-    background: linear-gradient(to left, violet, rgb(60, 60, 205));
+    background: linear-gradient(to right, #3C3CCD, #8A2BE2);
     height: 100vh;
 
 }
@@ -47,8 +47,7 @@ display:none;
 
 #rules h1{
 font-family: "Chewy", serif;
-        /*font-size: 20vw;*/
-        font-size: clamp(15px, 15vw, 60px);
+        font-size: 10vw;
         font-weight: 400;
         text-align: center;
         font-style: normal;
@@ -56,17 +55,29 @@ font-family: "Chewy", serif;
     color:rgb(237, 227, 179);
     text-shadow:0 5px 10px black;
 }
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  #rules h1 {
+    font-size: clamp(15px, 15vw, 60px);
+  }
+}
 
-#rules p, li{
+#rules p,
+#instruction-content li{
 font-family: "Chewy", serif;
-        /*font-size: 5vw;*/
-        font-size: clamp(16px, 5vw, 32px);
+        font-size: 5vw;
         font-weight: 400;
         padding: 10px;
         text-align: center;
         font-style: normal;
     color:rgb(237, 227, 179);
 list-style: none;
+}
+
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  #rules p,
+  #instruction-content li {
+    font-size: clamp(16px, 5vw, 32px);
+  }
 }
 
 #instruction-container {
@@ -115,10 +126,17 @@ list-style: none;
     border-radius: 10px;
     text-transform: uppercase;
     font-family: "Chewy", serif;
-    font-size: clamp(14px, 7vw, 32px); /* Naudojamas clamp */
+    font-size: 6vw;
     font-weight: 400;
     font-style: normal;
     cursor: pointer;
+}
+
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .closeBtn,
+  #next-btn {
+    font-size: clamp(14px, 7vw, 32px);
+  }
 }
 
 .closeBtn {
@@ -149,8 +167,7 @@ list-style: none;
 .start-container h1 {
     width: 100%;
     font-family: "Chewy", serif;
-    /*font-size: 20vw;*/
-    font-size: clamp(15px, 15vw, 60px);
+    font-size: 15vw;
     font-weight: 400;
     text-align: center;
     font-style: normal;
@@ -164,6 +181,12 @@ text-shadow:0 5px 10px black;
     transform: translateY(-100px);
     opacity: 0;
     animation: slideFade 3s ease-out forwards;
+}
+
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .start-container h1 {
+    font-size: clamp(15px, 15vw, 60px);
+  }
 }
 
 @keyframes slideFade {
@@ -180,8 +203,7 @@ text-shadow:0 5px 10px black;
 
 .start-container p {
     font-family: "Chewy", serif;
-    /*font-size: 7vw;*/
-    font-size: clamp(16px, 7vw, 40px);
+    font-size: 7vw;
     font-style: normal;
     color: yellow;
     margin-bottom: 20px;
@@ -190,6 +212,12 @@ text-shadow:0 5px 10px black;
     transform: scale(0);
     opacity: 0;
     animation: textExpand 2s ease-out forwards;
+}
+
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .start-container p {
+    font-size: clamp(16px, 7vw, 40px);
+  }
 }
 
 @keyframes textExpand {
@@ -235,7 +263,7 @@ text-shadow:0 5px 10px black;
     min-width: 50%;
     /*max-width: 200px;*/
     height: auto;
-    margin-bottom:20%;
+    margin-bottom:15%;
     border: none;
     border-radius: 10px;
     text-transform: uppercase;
@@ -332,7 +360,10 @@ font-family: "Chewy", serif;
     content: "";
     position: absolute;
     margin: 2px;
-    inset: 0 100% 0 0;
+    top: 0;
+    right: 100%;
+    bottom: 0;
+    left: 0;
     border-radius: inherit;
     background: linear-gradient(45deg, #002bff, #7a00ff, #ff00c8);
     animation: l6 6s infinite;
@@ -341,7 +372,7 @@ font-family: "Chewy", serif;
 
 @keyframes l6 {
     100% {
-        inset: 0
+        right: 0;
     }
 }
 
@@ -499,6 +530,7 @@ font-family: "Chewy", serif;
         text-align: center;*/
         background:rgb(60, 60, 205, 0.5);
         width: 80%;
+        max-width:400px;
         min-height: calc(var(--vh, 1vh) * 10);
         max-height: calc(var(--vh, 1vh) * 10);
         border-radius: 10px;
@@ -509,7 +541,7 @@ font-family: "Chewy", serif;
 
  .theme-container h2, .level-container h2 {
     font-family: "Chewy", serif;
-     font-size: clamp(20px, 13vw, 60px);
+     font-size: 13vw;
     font-weight: 400;
     font-style: normal;
     text-transform: uppercase;
@@ -517,6 +549,14 @@ font-family: "Chewy", serif;
     text-align:center;
     padding:5px;
     white-space: nowrap;
+    min-height: calc(var(--vh, 1vh) * 10);
+            max-height: calc(var(--vh, 1vh) * 10);
+}
+
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .theme-container h2, .level-container h2 {
+    font-size: clamp(20px, 13vw, 60px);
+  }
 }
 
 #theme-selection, #level-selection {
@@ -533,21 +573,20 @@ overflow-y: auto;
 }
 
 #theme-selection{
-margin-top:25%;
+margin-top:120px;
 overflow:scroll;
 }
 
 .theme-btn, .level-btn {
     position: relative;
     width: 60%;
-    max-width: 400px;
+    max-width: 250px;
     margin: 7px;
     padding:5px;
     /*height: 70px;*/
     min-height: 90px;
     font-family: "Chewy", serif;
-    font-size: clamp(12px, 4vw, 16px);
-    /*font-size: clamp(16px, 5vw, 24px);*/
+    font-size: 4vw;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -560,7 +599,11 @@ overflow:scroll;
     cursor: pointer;
     overflow: hidden;
 }
-
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .theme-btn, .level-btn {
+    font-size: clamp(12px, 4vw, 16px);
+  }
+}
 
 .theme-btn::before {
     content: "";
@@ -696,7 +739,7 @@ display:none;
 
 .quiz-container h2 {
     min-width: 90%;
-    font-size: clamp(1.3rem, 4vw, 3rem);
+    font-size: 4vw;
     margin: 15px 5px 50px 5px;
     padding: 5px 20px 5px 20px;
     background: inherit;
@@ -716,6 +759,11 @@ display:none;
     word-break: break-word; /* Leidžia ilgiems žodžiams lūžti į naujas eilutes */
      /* Pridedame, kad galetume vidinį elementą pozicionuoti */
     z-index: 2;
+}
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .quiz-container h2 {
+    font-size: clamp(1.3rem, 4vw, 3rem);
+  }
 }
 
 .quiz-container h2 > * {
@@ -749,9 +797,13 @@ display:none;
     font-weight: 400;
     font-style: normal;
     color: gold;
-    /*font-size: 25px;*/
-    font-size: clamp(24px, 5vw, 35px);
+    font-size: 5vw;
     z-index: 2;
+}
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .points-value {
+    font-size: clamp(24px, 5vw, 35px);
+  }
 }
 
 .answer-wrapper {
@@ -791,12 +843,16 @@ display:none;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    font-size: clamp(16px, 5vw, 30px);
+    font-size: 5vw;
     white-space:wrap;
     overflow: hidden;
 
 }
-
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .btn, .incorrect-answer-btn, .correct-answer-btn {
+    font-size: clamp(16px, 5vw, 30px);
+  }
+}
 
 
 .btn:hover {
@@ -863,7 +919,8 @@ display:none;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-evenly;
+    align-items: flex-start; /* arba center, priklausomai nuo norimos išvaizdos */
+        justify-content: center;
     margin: 0 auto;
     z-index: 2;
 }
@@ -887,6 +944,7 @@ color:yellow;
     font-size: 40px;
     border: none;
     background-color: inherit;
+    margin: 3px 15px;
 }
 
 
@@ -932,7 +990,7 @@ color:yellow;
     transform: translate(-50%, -50%);
     width: 200px;
     height: 270px;
-    background-color: rgba(255, 255, 255);
+    background-color: white;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     text-align: center;
@@ -1100,6 +1158,7 @@ background: rgb(182, 240, 8);
     background: rgb(240, 132, 8);
 }
 
+
 .support-btn{
     min-height: calc(var(--vh, 1vh) * 6);
     padding: 5px;
@@ -1175,20 +1234,17 @@ min-width:150px;
     background: linear-gradient(to left, rgb(60, 60, 205), violet);
     border: 4px solid gold;
     border-radius: 20px;
-
 display:none;
 }
 
-.coins{
+.coin-image{
 position: absolute;
-background: gold;
-width: 35px;
-height:35px;
-border-radius: 50%;
-vertical-align: middle;
- /*left: 5px;*/
- padding:0;
- margin:0;
+width: 40px;
+padding:0;
+margin:0;
+left:0;
+   top: 50%;
+   transform: translateY(-50%);
 }
 
 .user-total-points{
@@ -1197,9 +1253,18 @@ position: absolute;
     font-weight: 400;
     font-style: normal;
     color: gold;
-    font-size: clamp(24px, 5vw, 35px);
-    vertical-align: middle;
+    font-size: 4vw;
+    line-height: 0.85;
     right: 10px;
+      top: 50%;
+      transform: translateY(-60%);
+      padding: 0;
+        margin: 0;
+}
+@supports (font-size: clamp(1px, 1vw, 100px)) {
+  .user-total-points {
+    font-size: clamp(22px, 4vw, 30px);
+  }
 }
 
 /**********************SCORE****************/
@@ -1310,3 +1375,48 @@ margin: 50px auto;
       height: auto;
       margin-bottom: 20px;
     }
+
+.result-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Pusiau permatomas fonas */
+    z-index: 10000;
+}
+
+.result-modal-content {
+    /*background: linear-gradient(to right, #3C3CCD, #8A2BE2);*/
+    background:transparent;
+    padding: 20px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+}
+
+#result-btn{
+background: #FFF5EE;
+width: 200px;
+    max-width: 200px;
+    height:200px;
+    color:#483D8B;
+    text-shadow: 7px 5px 9px grey;
+    /*box-shadow: 10px 10px 20px rgb(76, 15, 199);*/
+    box-shadow: 0 0 15px 6px rgba(255, 245, 238, 0.4),  /* glow */
+      2px 4px 8px rgba(0, 0, 0, 0.15);        /* depth */
+    font-size: 1.7rem;
+    font-family: "Coiny", serif;
+    font-weight: 400;
+    font-style: normal;
+    border: none;
+    border-radius: 50%;
+    /*min-height: calc(var(--vh, 1vh) * 9);*/
+    padding: 10px;
+        margin: 10px;
+}
+

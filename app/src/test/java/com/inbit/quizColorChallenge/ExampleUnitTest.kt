@@ -1,4 +1,4 @@
-package com.example.testbanner
+package com.inbit.quizColorChallenge
 
 import org.junit.Test
 

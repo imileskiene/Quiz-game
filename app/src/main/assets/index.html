@@ -59,7 +59,7 @@
     </div>
     <div class="quiz-container">
         <label>
-            <input type="text" readonly class="points-value">
+<!--            <input type="text" readonly class="points-value" >-->
         </label>
         <h2 id="question"></h2>
         <div class="answer-wrapper">
@@ -118,13 +118,18 @@
     <!--        create starts here-->
 </div>
 <div id="points-container" class="points-container">
-    <div class="coins"></div>
+    <img src="images/Coin.png" alt="coin" class="coin-image">
     <span id="user-total-points" class="user-total-points">0</span>
 </div>
 <div id="modal" class="modal">
     <div class="modal-content">
         <p id="modal-text"></p>
         <button id="modal-close">OK</button>
+    </div>
+</div>
+<div id="question-result-modal" style="display: none;" class="result-modal">
+    <div class="result-modal-content">
+        <button id="result-btn">Check result</button>
     </div>
 </div>
 <div id="instruction-container">

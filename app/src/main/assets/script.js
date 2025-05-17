@@ -289,7 +289,7 @@ async function getThemes() {
 
             // Tikriname, ar `quizLevels[selectedLevel].themes` egzistuoja
             if (!quizLevels[selectedLevel] || !quizLevels[selectedLevel].themes) {
-              throw new Error(`Nėra temų lygiui: ${selectedLevel}`);
+              throw new Error(`No themes available for level: ${selectedLevel}`);
             }
 
 //        // Tikriname, ar `themes` egzistuoja
@@ -341,7 +341,7 @@ let isThemeLoading = false;
 
                 const questions = await getValidQuestions(theme.name, selectedLevel);
                       if (!questions) {
-                          showModal("There are no questions available for this theme and level. Please choose another theme.");
+                          showModal("There are no questions available for this theme and level at this moment. Please choose another theme.");
 isThemeLoading = false;
                           return;
                       }
@@ -372,13 +372,14 @@ startQuiz(theme.name, selectedLevel,questions);
         });
 
     } catch (error) {
-              console.error("Klaida gaunant temas:", error);
-                  showModal("Nepavyko įkelti temų, bandykite prisijungti iš naujo.");
+              console.error("Error fetching themes:", error);
+                  showModal("Failed to load themes, please try logging in again.");
                   document.getElementById("modal-close").onclick = function() {
                               stopGame();  // Kai paspaudžiamas "OK" (Close), suveikia stopGame
                           };
 }
 }
+
 function stopGame() {
     // Paslepiame visus žaidimo elementus
     startContainer.style.display = "none";
@@ -423,7 +424,7 @@ try{
             console.log("selectedQuestions", selectedQuestions);
 
             if (!selectedQuestions || selectedQuestions.length === 0) {
-                  showModal("There are no questions available for this theme and level. Please choose another theme.");
+                  showModal("There are no questions available for this theme and level at this moment. Please choose another theme.");
                   themeContainer.style.display = "block";
                   playLoopSound();
                   quizContainer.style.display = "none";
@@ -458,14 +459,9 @@ try{
      }
  }
 
-// Funkcija, kuri paima random 10 klausimų
-//function getRandomQuestions(themeArray, count) {
-//  return themeArray.sort(() => Math.random() - 0.5).slice(0, count);
-//}
-
 function showQuestion() {
     if (selectedQuestions.length === 0) {
-        console.error("Nėra klausimų pasirinktoje temoje.");
+        console.error("There are no questions for this theme.");
         alert("There are no questions for this theme. Returning you to the theme list.");
         themeContainer.style.display = "block";
         quizContainer.style.display = "none";
@@ -478,10 +474,10 @@ function showQuestion() {
     let i = 0;
 
     //  Atnaujiname taškų reikšmę inpute**
-        if (points[currentQuestionIndex] !== undefined) {
-            document.querySelector(".points-value").value = points[currentQuestionIndex]
-                .toLocaleString('lt-LT');
-        }
+//        if (points[currentQuestionIndex] !== undefined) {
+//            document.querySelector(".points-value").value = points[currentQuestionIndex]
+//                .toLocaleString('lt-LT');
+//        }
 
     // Užblokuokime mygtukus po uždelsimo, kad tikrai pasirodytų klausimas pirmiausia
     setTimeout(disableButtons, 0); // Užblokuosime mygtukus tik po to, kai klausimas parodomas
@@ -553,17 +549,23 @@ function showQuestion() {
             //funkcija pateikia teisinga atsakyma zaliai
             showCorrectAnswer(currentQuestion.answer);
         }
+                await new Promise((resolve) => setTimeout(resolve, 1700));
+        const questionResultModal = document.getElementById("question-result-modal");
+            const resultBtn = document.getElementById("result-btn");
+questionResultModal.style.display = "block";
 
-        await new Promise((resolve) => setTimeout(resolve, 1700));
+resultBtn.onclick = async () => {
+        questionResultModal.style.display = "none";
         stopQuizSound();
         quizContainer.style.display = "none";
         scoreTable.style.display = "block";
         starContainer.style.display = "block";
 
+
         updateScoreTable(isCorrect);
         createStars();
 
-        await playOtherSounds(isCorrect ? "winning" : "loose");
+await playOtherSounds(isCorrect ? "winning" : "loose");
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         if (currentQuestionIndex < selectedQuestions.length - 1) {
@@ -592,7 +594,8 @@ function showQuestion() {
                 finishedContainer.style.display = "block";
                 showResults();
             }
-        }
+            }
+        };
     };
     // Išvalome mygtukus ir pašaliname senus event listeners po const questionClickListener
     while (answerButtons.firstChild) {
@@ -643,23 +646,23 @@ mobileBtn.addEventListener("click", async (event) => {
     await playOtherSounds("press"); // Groja "press" garsą
     // Patikrinu ar paspaudimas buvo ant ikonos
     const isIconClicked = event.target.closest("#mobile-icon");
-    console.log("isIconClicked", isIconClicked);
+//    console.log("isIconClicked", isIconClicked);
     if (!mobileBtnFirstClick && isMobileHelpActive === false) {
-        console.log("Pirmas paspaudimas");
+//        console.log("Pirmas paspaudimas");
         // Pirmas paspaudimas
         mobileIconPopup(); // Rodomas mobilus popup
         //  mobileBtn.disabled = true; // nebenaudosim disabled
         isMobileHelpActive = true;
         mobileBtnFirstClick = true; // Nustatom, kad mygtukas jau paspaustas pirmą kartą
     } else {
-        console.log("Antras paspaudimas");
+//        console.log("Antras paspaudimas");
         // Antras paspaudimas (mygtukas jau buvo paspaustas)
         if (isMobileHelpActive === true && mobileBtnFirstClick === true) {
-            console.log("mygtukas deaktyvuotas");
+//            console.log("mygtukas deaktyvuotas");
 //            await playSound("notActiveSound"); // Groja "notActiveSound"
             showRewardPopupDiv(); // Keičiame showMobileRewardPopup į showRewardPopupDiv
         } else {
-            console.log("mygtukas aktyvus");
+            console.log("button is active");
         }
     }
 });
@@ -704,7 +707,6 @@ function selectTwoIncorrectBtnsWithHelp(){
 // Jei radome klaidingus atsakymus, pasirenkame 2 atsitiktinius
 if (incorrectAnswers.length > 0) {
   const twoIncorrectAnswers = getRandomAnswers(incorrectAnswers, 2); // Pasiimame 2 atsitiktinius klaidingus atsakymus
-  // Loop through and apply style to each button
   twoIncorrectAnswers.forEach(answer => {
     const button = [...answerButtons.querySelectorAll("button")].find(btn => btn.textContent === answer); // Paieška pagal tekstą
     if (button) {
@@ -822,13 +824,6 @@ createStars();
   // Tada po dar truputį vėliau apsuka
   setTimeout(() => {
     cardInner.classList.add("flipped");
-
-    // Leisti garsą po apsivertimo
-//    if (isCorrect) {
-//      playSound("winning");
-//    } else {
-//      playSound("loose");
-//    }
   }, 500);
 }
 
@@ -880,7 +875,7 @@ function createBubble() {
 // Kiekvieną 0.3 sekundės generuoja naują burbulą
 setInterval(createBubble, 300);
 
-
+ // ==================== FUNKCIJA ATVAIZDUOJANTI FINISHED CONTAINER ====================
 function showResults() {
 stopQuizSound();
  if (typeof Android !== "undefined") {
@@ -905,7 +900,7 @@ const formattedTotalPoints = totalPoints.toLocaleString('lt-LT');
   <img src="images/owlfinished.png" alt="owlFinished" class="owl-finished">
     <h2>Quiz Finished!</h2>
     <p>You answered <strong>${score}</strong> out of <strong>${selectedQuestions.length}</strong> correctly.</p>
-    <p>Total points: <strong>${formattedTotalPoints}</strong></p>
+    <p>Round points: <strong>${formattedTotalPoints}</strong></p>
     <button id="again-btn">Reset</button>
     <button id="return-btn">Start new game</button>
   `;
@@ -915,13 +910,51 @@ const formattedTotalPoints = totalPoints.toLocaleString('lt-LT');
   // Pridedame event listener'ius naujai sugeneruotiems mygtukams
   document.getElementById("again-btn").addEventListener("click", async () => {
     await playSound("press");
-    // Sustabdome loop garsą (kviečiame Android pusėje esančią funkciją)
-        stopLoopSound();
+    if (typeof Android !== "undefined") {
+                console.log("Reset button clicked - attempting to show interstitial ad");
+
+                // Uždenkam viską prieš reklamą
+                overlayContainer.style.display = "block";
+                finishedContainer.style.display = "none"; // Slėpti turinį, kol reklama vyksta
+                bubbleContainer.style.display = "none"; // Slėpti burbulus
+
+                // Funkcija, kuri bus iškviesta iš Android, kai reklama užsidarys
+                window.nextContainer = () => {
+                    requestAnimationFrame(async () => {
+                        console.log("Interstitial ad dismissed - continuing Reset action");
+                        // Tęsiame "Reset" veiksmus
+                        stopLoopSound(); // Sustabdome loop garsą
+                        updateUserPointsDisplay();
+                        questionElement.innerHTML = "";
+                        answerButtons.innerHTML = "";
+//                        document.querySelector(".points-value").value = "";
+                        scoreTable.style.display = "none"; // Paslepiame rezultatų lentelę
+                        // bubbleContainer.style.display = "none"; // Jau paslėpta viršuje
+                        quizContainer.style.display = "block"; // Rodyti viktorinos konteinerį
+
+                        // Paskutinis asinhroninis veiksmas gauti klausimus ir pradėti viktoriną
+                         const newQuestions = await getValidQuestions(currentTheme, selectedLevel);
+                              if (!newQuestions) {
+                               showModal("Failed to retrieve questions. Please try again.");
+                               overlayContainer.style.display = "none"; // Atskleidziame, net jei nepavyko
+                               return;
+                             }
+                             startQuiz(currentTheme, selectedLevel, newQuestions);
+                             overlayContainer.style.display = "none"; // Atskleidziame, kai quizas pradedamas
+                         });
+                };
+                showInterstitial();
+
+
+            } else {
+                // Ne Android aplinkoje – tęsiame be reklamos
+                console.log("Not in Android environment - continuing Reset action without ad");
+                stopLoopSound();
         updateUserPointsDisplay();
 
         questionElement.innerHTML = "";
             answerButtons.innerHTML = "";
-            document.querySelector(".points-value").value = "";
+//            document.querySelector(".points-value").value = "";
 
     finishedContainer.style.display = "none";
     scoreTable.style.display = "none";
@@ -929,28 +962,56 @@ const formattedTotalPoints = totalPoints.toLocaleString('lt-LT');
     quizContainer.style.display = "block";
      const newQuestions = await getValidQuestions(currentTheme, selectedLevel);
      if (!newQuestions) {
-       showModal("Nepavyko gauti klausimų. Bandykite dar kartą.");
+       showModal("Failed to retrieve questions. Please try again.");
        return;
      }
      startQuiz(currentTheme, selectedLevel, newQuestions);
+     }
   });
 
-  document.getElementById("return-btn").addEventListener("click", async() => {
-    await playSound("press");
-    playLoopSound();
-    updateUserPointsDisplay();
-                 finishedContainer.style.display = "none";
-                     themeContainer.style.display = "none";
-                     pointsContainer.style.display = "block";
-                     quizContainer.style.display = "none";
-                     scoreTable.style.display = "none";
-                     bubbleContainer.style.display = "none";
-
-                     showLevels();
-  });
+  document.getElementById("return-btn").addEventListener("click", async () => {
+          await playSound("press");
 
 
-  finishedContainer.style.display = "block";
+          if (typeof Android !== "undefined") {
+              console.log("Start new game button clicked - attempting to show interstitial ad");
+
+
+              overlayContainer.style.display = "block";
+              finishedContainer.style.display = "none";
+              bubbleContainer.style.display = "none";
+
+              window.nextContainer = () => {
+                  requestAnimationFrame(() => {
+                       console.log("Interstitial ad dismissed - continuing Start new game action");
+                       playLoopSound();
+                       updateUserPointsDisplay();
+                       finishedContainer.style.display = "none";
+                       themeContainer.style.display = "none";
+                       pointsContainer.style.display = "block";
+                       quizContainer.style.display = "none";
+                       scoreTable.style.display = "none";
+                       bubbleContainer.style.display = "none";
+                       showLevels();
+                       overlayContainer.style.display = "none";
+                  });
+              };
+              showInterstitial();
+
+          } else {
+              console.log("Not in Android environment - continuing Start new game action without ad");
+              playLoopSound();
+              updateUserPointsDisplay();
+              finishedContainer.style.display = "none";
+              themeContainer.style.display = "none";
+              pointsContainer.style.display = "block";
+              quizContainer.style.display = "none";
+              scoreTable.style.display = "none";
+              bubbleContainer.style.display = "none";
+              showLevels();
+          }
+      });
+      finishedContainer.style.display = "block";
 
   // ==================== LOCAL STORAGE: Saugom bendrą taškų kiekį ====================
   let savedPoints = localStorage.getItem("totalPoints");
@@ -968,7 +1029,7 @@ const formattedTotalPoints = totalPoints.toLocaleString('lt-LT');
 
   // Rodom papildomai bendrą visų laikų rezultatą
   const lifetimePointsDisplay = document.createElement("p");
-  lifetimePointsDisplay.innerHTML = `<strong>Viso taškų per visus žaidimus:</strong> ${newTotal.toLocaleString('lt-LT')}`;
+  lifetimePointsDisplay.innerHTML = `<strong>Total points:</strong> ${newTotal.toLocaleString('lt-LT')}`;
   finishedContainer.appendChild(lifetimePointsDisplay);
 
 }
