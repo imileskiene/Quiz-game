@@ -47,6 +47,7 @@ function mobileIconPopup(){
 
   mobileCloseBtn.addEventListener("click", ()=>{
     mobilePopup.remove();
+    isMobileBtnProcessing = false;
   });
 
 }
@@ -80,6 +81,7 @@ function showRewardPopupDiv() {
         closeBtn.classList.add("close-reward-btn");
         closeBtn.addEventListener("click", () => {
             rewardPopupContainer.remove();
+            isMobileBtnProcessing = false;
         });
         rewardPopupContainer.appendChild(closeBtn);
 

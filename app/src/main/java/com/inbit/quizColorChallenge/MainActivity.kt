@@ -486,7 +486,7 @@ class MainActivity : ComponentActivity() {
     }
 
     fun sendSupportEmail() {
-        val recipient = "imileskiene82@gmail.com"
+        val recipient = "inbit.dev@gmail.com"
         val subject = "Quizly: Color Challenge"
 
         // Gauti programėlės versiją

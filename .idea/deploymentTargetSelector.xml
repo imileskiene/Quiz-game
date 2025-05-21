@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-17T07:58:07.820261300Z">
+        <DropdownSelection timestamp="2025-05-19T18:45:14.659354700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ibita\.android\avd\Small_Phone.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\ibita\.android\avd\Pixel_8.avd" />
             </handle>
           </Target>
         </DropdownSelection>

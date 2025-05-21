@@ -90,7 +90,8 @@ list-style: none;
     height: auto;*/
     width: 90%;
         max-width: 600px;
-        min-height: 200px;
+        /*min-height: 200px;*/
+        height:100%;
     background: rgba(15, 3, 50, 0.8);
     padding: 20px;
       border: 2px solid #007bff;
@@ -142,6 +143,7 @@ list-style: none;
 .closeBtn {
     color: rgb(237, 227, 179);
     background: rgb(114, 77, 226);
+    margin-top: 50px;
 }
 
 #next-btn {
@@ -263,7 +265,7 @@ text-shadow:0 5px 10px black;
     min-width: 50%;
     /*max-width: 200px;*/
     height: auto;
-    margin-bottom:15%;
+    margin-bottom:11%;
     border: none;
     border-radius: 10px;
     text-transform: uppercase;
@@ -325,7 +327,12 @@ text-shadow:0 5px 10px black;
 }
 
 .startowl-image{
-    width: 250px;
+    max-width: 100%;
+        width: 200px; /* Sumažinau numatytąjį plotį, pritaikykite pagal poreikį */
+                      /* Arba naudokite width: 60%; max-width: 200px; */
+        height: auto;
+        margin-left: auto;
+        margin-right: auto;
     /*height: 250px;*/
 opacity: 0;
     animation: fadeIn 2s ease-out forwards;
@@ -519,6 +526,8 @@ font-family: "Chewy", serif;
     width: 100%;
     display:none;
     margin-top:90px;
+    position: relative;
+    height:calc(var(--vh, 1vh) * 10);
 }
 
 .theme-container-h2, .level-container-h2{
@@ -537,6 +546,7 @@ font-family: "Chewy", serif;
         /*margin-bottom:20px;*/
         box-shadow: 2px 10px 20px rgb(237, 227, 179);
         margin-bottom:50px;
+        z-index: 10;
    }
 
  .theme-container h2, .level-container h2 {
@@ -564,17 +574,21 @@ font-family: "Chewy", serif;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height:calc(var(--vh, 1vh) * 75);
 }
 
 #level-selection{
 padding-top: 120px;
 overflow-y: auto;
+z-index: 1;
+height:calc(var(--vh, 1vh) * 75);
 }
 
 #theme-selection{
-margin-top:120px;
-overflow:scroll;
+position: relative;
+margin-top: calc(var(--vh, 1vh) * 10 + 20px);
+height:calc(var(--vh, 1vh) * 70);
+/*overflow:scroll;*/
+overflow-y: auto;
 }
 
 .theme-btn, .level-btn {
@@ -1130,11 +1144,8 @@ color:yellow;
 }
 
 #again-btn, #return-btn, .support-btn {
-    width: 250px;
-    max-width: 250px;
     color: white;
     text-shadow: 7px 5px 9px black;
-    box-shadow: 10px 10px 20px rgb(76, 15, 199);
     font-size: 1.5rem;
     font-family: "Coiny", serif;
     font-weight: 400;
@@ -1147,7 +1158,9 @@ color:yellow;
 min-height: calc(var(--vh, 1vh) * 9);
 padding: 10px;
     margin: 10px;
-
+width: 250px;
+    max-width: 250px;
+    box-shadow: 10px 10px 20px rgb(76, 15, 199);
 }
 
 #again-btn{
@@ -1160,10 +1173,13 @@ background: rgb(182, 240, 8);
 
 
 .support-btn{
-    min-height: calc(var(--vh, 1vh) * 6);
-    padding: 5px;
-    margin: 5px;
-    background: DodgerBlue;
+    min-height: calc(var(--vh, 1vh) * 8);
+    box-shadow: 10px 10px 20px white;
+    margin: 10px;
+    background: #3C3CCD;
+    width: 200px;
+        max-width: 200px;
+        text-align: center;
 }
 
 .bubble-container {
@@ -1226,11 +1242,12 @@ background:inherit;
 position: fixed;
 min-width:150px;
     width: auto;
-    height: calc(var(--vh, 1vh) * 5);
+      /*max-width: 220px;*/
+    height: 40px;
     top: 3%;
     left: 5%;
     margin-bottom:10px;
-    /*padding: 2px;*/
+    padding: 2px 5px;
     background: linear-gradient(to left, rgb(60, 60, 205), violet);
     border: 4px solid gold;
     border-radius: 20px;
@@ -1242,7 +1259,7 @@ position: absolute;
 width: 40px;
 padding:0;
 margin:0;
-left:0;
+left:-2px;
    top: 50%;
    transform: translateY(-50%);
 }

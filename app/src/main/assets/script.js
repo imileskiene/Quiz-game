@@ -35,6 +35,8 @@ let selectedQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let currentTheme = null;
+let isMobileBtnProcessing = false;
+let isBoltBtnProcessing = false;
 
 pointsContainer.style.display = "none";
 rulesContainer.style.display = "none";
@@ -447,6 +449,7 @@ try{
   boltBtn.disabled  = false;
   const boltIcon = boltBtn.querySelector('i');
   boltIcon.style.color = 'aqua'; // Grąžiname pradinę spalvą
+  isBoltBtnProcessing = false;
   playQuizSound();
   quizContainer.style.display = "block";
   starContainer.style.display = "none";
@@ -630,7 +633,7 @@ function enableMobileHelpAfterReward() {
 //    }
     isMobileHelpActive = false;
     mobileBtnFirstClick = false; // kad paspaudus is naujo veiktų
-    // Galima pridėti daugiau logikos, pvz., pakeisti mygtuko tekstą arba padaryti kitus veiksmus
+   isMobileBtnProcessing = false;
 }
 
 //Ši funkcija iškviečia Android kodą, kad būtų parodyta reward reklama.
@@ -641,6 +644,13 @@ if (typeof Android !== "undefined") {
 
 
 mobileBtn.addEventListener("click", async (event) => {
+if (isMobileBtnProcessing) {
+        console.log("Mobile button is currently processing a previous click. Ignoring.");
+        return; // Išeiname, jei ankstesnis paspaudimas dar nebaigtas
+    }
+    // 2. Nustatome flag'ą, kad šis paspaudimas pradėtas apdoroti
+    isMobileBtnProcessing = true;
+    try{
     console.log("mobileBtn.addEventListener");
     console.log("mobileBtnFirstClick", mobileBtnFirstClick);
     await playOtherSounds("press"); // Groja "press" garsą
@@ -663,14 +673,27 @@ mobileBtn.addEventListener("click", async (event) => {
             showRewardPopupDiv(); // Keičiame showMobileRewardPopup į showRewardPopupDiv
         } else {
             console.log("button is active");
+            isMobileBtnProcessing = false;
         }
+    }
+    }catch (error) {
+    console.error("Error during mobileBtn click processing:", error);
+            isMobileBtnProcessing = false;
     }
 });
 
 
 boltBtn.addEventListener("click", async function () {
-    await playOtherSounds("press");
+if (isBoltBtnProcessing || boltBtn.disabled) {
+        if (isBoltBtnProcessing) {
+            console.log("%cBolt button is currently processing. Click ignored.", "color: orange;");
+        }
+        return;
+    }
 
+    isBoltBtnProcessing = true;
+    try{
+    await playOtherSounds("press");
     selectTwoIncorrectBtnsWithHelp(); // Po garso aktyvuojame funkciją
 
     // Disable the help button after it has been clicked
@@ -678,6 +701,13 @@ boltBtn.addEventListener("click", async function () {
 
     const boltIcon = boltBtn.querySelector('i');
     boltIcon.style.color = '#ccc';
+    }catch (error) {
+    console.error("Error during boltBtn click processing:", error);
+            if (!boltBtn.disabled) {
+                        isBoltBtnProcessing = false;
+                        console.log("%cisBoltBtnProcessing set to FALSE due to error before disable", "color: green;");
+                    }
+    }
 });
 
 boltIcon.addEventListener("click", async () => {
