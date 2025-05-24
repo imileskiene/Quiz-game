@@ -159,11 +159,11 @@ function backBtnPopup() {
         }
     }
 
-    backBtn.addEventListener("click", async () => {
-        await playOtherSounds("press");
-        backBtnPopup();
-        stopQuizSound();
-    });
+//    backBtn.addEventListener("click", async () => {
+//        await playOtherSounds("press");
+//        backBtnPopup();
+//        stopQuizSound();
+//    });
 
 function returnToLevels() {
   // Grįžtame į lygių ekraną

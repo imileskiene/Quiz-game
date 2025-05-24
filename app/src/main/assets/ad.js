@@ -1,6 +1,7 @@
 
 //Funkcija iskviesti tarpine reklama.
 function showInterstitial(){
+console.log("showInterstitial() called");
     window.Android.showInterstitial();
 }
 function showAdError() {
@@ -11,6 +12,8 @@ function showRewardAd() {
     console.log("showRewardAd() called");
     window.Android.showRewardAd();
 }
+
+
 
 // Naujos funkcijos garso valdymui
 let soundsMuted = false;

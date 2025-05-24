@@ -12,15 +12,21 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.StrictMode
 import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.webkit.JavascriptInterface
+import android.webkit.SafeBrowsingResponse
+import android.webkit.SslErrorHandler
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -28,6 +34,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -62,6 +69,10 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+
 //import com.example.testbanner.R
 
 
@@ -171,6 +182,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectAll() // arba .detectCustomSlowCalls(), .detectDiskReads(), .detectDiskWrites(), .detectNetwork()
+                .penaltyLog()
+                //.penaltyDeath() // Įjunk tik testavimui – app nulūš kai pažeidimas įvyks
+                .build()
+        )
 // Inicializuojame tinklo stebėjimą
         connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -324,12 +343,12 @@ class MainActivity : ComponentActivity() {
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad
-//                    Log.d(TAG, "Rewarded ad loaded")
+                    Log.d(TAG, "Rewarded ad loaded")
 
                     rewardedAd?.fullScreenContentCallback =
                         object : FullScreenContentCallback() {
                             override fun onAdShowedFullScreenContent() {
-//                                Log.d(TAG, "Rewarded ad showed")
+                                Log.d(TAG, "Rewarded ad showed")
                                 stopAllSounds()
                                 webView?.evaluateJavascript("javascript:onRewardStarted()", null)
                             }
@@ -648,7 +667,7 @@ class MainActivity : ComponentActivity() {
     ) {
 
         private fun isSafe(): Boolean {
-            return !activity.isFinishing && !activity.isDestroyed
+            return !(activity.isFinishing || activity.isDestroyed || webView == null)
         }
 
         @JavascriptInterface
@@ -659,13 +678,51 @@ class MainActivity : ComponentActivity() {
                 "correct" -> "file:///android_asset/sounds/correct.mp3"
                 "incorrect" -> "file:///android_asset/sounds/incorrect.mp3"
                 "winning" -> "file:///android_asset/sounds/winning.mp3"
-                "loop" -> "android.resource://com.example.testbanner/raw/loop"
-                "quiz" -> "android.resource://com.example.testbanner/raw/quiz"
+                "loop" -> "android.resource://com.inbit.quizColorChallenge/raw/loop"
+                "quiz" -> "android.resource://com.inbit.quizColorChallenge/raw/quiz"
                 "loose" -> "file:///android_asset/sounds/loose.mp3"
                 else -> ""
             }
         }
 
+        @JavascriptInterface
+        fun getQuestionsFromAPI(categoryId: String, difficulty: String, callbackName: String) {
+            Log.d("WebAppInterface", "getQuestionsFromAPI called with categoryId: $categoryId, difficulty: $difficulty, callbackName: $callbackName") // Pridėta
+            val apiUrl =
+                "https://opentdb.com/api.php?amount=10&category=$categoryId&difficulty=$difficulty&type=multiple"
+            Log.d("WebAppInterface", "API URL: $apiUrl")
+            Thread {
+                try {
+                    val connection = URL(apiUrl).openConnection() as HttpURLConnection
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = 5000
+                    connection.readTimeout = 5000
+
+                    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                    Log.d("WebAppInterface", "API Response: $responseText") // Pridėta
+
+                    if (isSafe()) {
+                        (mContext as Activity).runOnUiThread {
+                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with response") // Pridėta
+                            webView?.evaluateJavascript(
+                                "$callbackName(${JSONObject.quote(responseText)})",
+                                null
+                            )
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("WebAppInterface", "Error fetching from API: ${e.message}", e) // Pakeistas Log lygis į Error
+                    e.printStackTrace()
+                    if (isSafe()) {
+                        (mContext as Activity).runOnUiThread {
+                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with null due to error") // Pridėta
+                            webView?.evaluateJavascript("$callbackName(null)", null)
+                        }
+                    }
+                }
+            }.start()
+        }
 
 
         @JavascriptInterface
@@ -807,17 +864,53 @@ class MainActivity : ComponentActivity() {
             factory = { context ->
                 webViewInstance.apply {
                     settings.javaScriptEnabled = true
-                    settings.allowFileAccess = true
+                    settings.safeBrowsingEnabled = true
+                    settings.allowFileAccess = false
                     settings.allowContentAccess = true
                     settings.domStorageEnabled = true
                     settings.useWideViewPort = true
                     settings.loadWithOverviewMode = true
                     webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(
+                            view: WebView?,
+                            request: WebResourceRequest?
+                        ): Boolean {
+                            val url = request?.url.toString()
+                            return if (url.startsWith("https://")) {
+                                false // leisti krauti
+                            } else {
+                                Toast.makeText(context, "Blocked insecure content", Toast.LENGTH_SHORT).show()
+                                true // blokuoti nesaugu turinį
+                            }
+                        }
+
+                        override fun onReceivedSslError(
+                            view: WebView?,
+                            handler: SslErrorHandler?,
+                            error: SslError?
+                        ) {
+                            handler?.cancel() // atšaukti pavojingą puslapį
+                            Toast.makeText(context, "SSL error - page blocked", Toast.LENGTH_SHORT).show()
+                        }
+
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
-
+                            Log.d("WebView", "Page loaded: $url")
+                            // Jei turi loader, čia jį gali paslėpti
+                        }
+                        @RequiresApi(Build.VERSION_CODES.O_MR1)
+                        override fun onSafeBrowsingHit(
+                            view: WebView,
+                            request: WebResourceRequest,
+                            threatType: Int,
+                            callback: SafeBrowsingResponse
+                        ) {
+                            Toast.makeText(view.context, "Warning: Potential threat found. This page has been blocked for your safety.", Toast.LENGTH_LONG).show()
+                            callback.backToSafety(true)
                         }
                     }
+
+                    webChromeClient = WebChromeClient()
                     setBackgroundColor(0)
 
                     // Sukuriame WebAppInterface objekta

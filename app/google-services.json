@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "576724710910",
+    "project_id": "quiz-game-cd775",
+    "storage_bucket": "quiz-game-cd775.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576724710910:android:9b9f2f11c563b6105f3caf",
+        "android_client_info": {
+          "package_name": "com.inbit.quizColorChallenge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAthseQfDCFObZUSJdi4GS2619DwOTPk2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

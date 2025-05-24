@@ -2,18 +2,38 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.inbit.quizColorChallenge"
     compileSdk = 35
 
-    signingConfigs { // PRIDĖTA PASIRAŠYMO KONFIGŪRACIJA
+    signingConfigs {
         create("release") {
-//            storeFile = file(project.property("MYAPP_RELEASE_STORE_FILE") as String)
-//            storePassword = project.property("MYAPP_RELEASE_STORE_PASSWORD") as String
-//            keyAlias = project.property("MYAPP_RELEASE_KEY_ALIAS") as String
-//            keyPassword = project.property("MYAPP_RELEASE_KEY_PASSWORD") as String
+            // Nuskaitykite savybes, kaip darėte
+            val storeFileProperty = project.findProperty("MYAPP_RELEASE_STORE_FILE")?.toString()
+            val storePasswordProperty = project.findProperty("MYAPP_RELEASE_STORE_PASSWORD")?.toString()
+            val keyAliasProperty = project.findProperty("MYAPP_RELEASE_KEY_ALIAS")?.toString()
+            val keyPasswordProperty = project.findProperty("MYAPP_RELEASE_KEY_PASSWORD")?.toString()
+
+            // Tiesiog priskirkite, jei savybės rastos.
+            // Klaida bus mesta vėliau, jei savybės bus null ir bandoma pasirašyti release.
+            if (
+                storeFileProperty != null &&
+                storePasswordProperty != null &&
+                keyAliasProperty != null &&
+                keyPasswordProperty != null &&
+                file(storeFileProperty).exists()
+            ) {
+                storeFile = file(storeFileProperty)
+                storePassword = storePasswordProperty
+                keyAlias = keyAliasProperty
+                keyPassword = keyPasswordProperty
+            } else {
+                println("⚠️ Warning: Incomplete or missing signing config or keystore file doesn't exist.")
+            }
         }
     }
 
@@ -34,10 +54,23 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            val releaseSigningConfig = signingConfigs.findByName("release")
+            if (releaseSigningConfig?.storeFile?.exists() == true &&
+                !releaseSigningConfig.storePassword.isNullOrEmpty() &&
+                !releaseSigningConfig.keyAlias.isNullOrEmpty() &&
+                !releaseSigningConfig.keyPassword.isNullOrEmpty()) {
+                signingConfig = releaseSigningConfig
+            } else {
+                // Jei esame release build type ir konfigūracija netinkama, metame klaidą.
+                // Arba galite leisti build'ui praeiti be pasirašymo, jei tai priimtina (nerekomenduojama gamybai).
+                throw GradleException("Release signing configuration is incomplete or missing. " +
+                        "Please ensure MYAPP_RELEASE_STORE_FILE, MYAPP_RELEASE_STORE_PASSWORD, " +
+                        "MYAPP_RELEASE_KEY_ALIAS, and MYAPP_RELEASE_KEY_PASSWORD are correctly defined in local.properties " +
+                        "and the storeFile exists.")
+            }
         }
         debug {
-            applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isDebuggable = true
             isMinifyEnabled = false
@@ -60,6 +93,10 @@ android {
 
 dependencies {
     implementation ("com.google.android.gms:play-services-ads:23.0.0")
+    implementation(platform(libs.firebase.bom))
+    implementation (libs.firebase.database.ktx)
+    implementation(libs.firebase.analytics.ktx)
+
     implementation (libs.androidx.core.splashscreen)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

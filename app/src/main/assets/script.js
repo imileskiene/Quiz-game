@@ -28,8 +28,6 @@ const overlayContainer = document.getElementById("overlay");
 //300
 const points = [10, 10, 10, 15, 15, 15, 20, 20, 20, 25];
 let answerStatuses = [];
-
-
 let selectedLevel = null;
 let selectedQuestions = [];
 let currentQuestionIndex = 0;
@@ -37,6 +35,40 @@ let score = 0;
 let currentTheme = null;
 let isMobileBtnProcessing = false;
 let isBoltBtnProcessing = false;
+let answerButtonsList = [];
+
+function cacheAnswerButtons() {
+  if (answerButtons) { // Patikrinimas, ar answerButtons jau egzistuoja
+    answerButtonsList = [...answerButtons.querySelectorAll("button")];
+  } else {
+    console.error("answerButtons DOM element not found when trying to cache.");
+    answerButtonsList = [];
+  }
+}
+
+function disableButtons() {
+  if (answerButtonsList && answerButtonsList.length > 0) {
+    answerButtonsList.forEach((button) => {
+      button.disabled = true;
+    });
+  }
+}
+
+function enableButtons() {
+  if (answerButtonsList && answerButtonsList.length > 0) {
+    answerButtonsList.forEach((button) => {
+      button.disabled = false;
+    });
+  }
+}
+
+function showCorrectAnswer(answer) {
+  answerButtonsList.forEach((button) => {
+    if (button.textContent === answer) {
+      button.style.background = "#ADFF2F";
+    }
+  });
+}
 
 pointsContainer.style.display = "none";
 rulesContainer.style.display = "none";
@@ -212,47 +244,92 @@ function showLevels() {
 }
 
 //funkcija pasiekti klausimus is API
-async function getQuestionsFromAPI(amount, themeName, difficulty) {
-//    console.log("getQuestionsFromAPI is called with:", { amount, themeName, difficulty });
-        let selectedTheme = allThemes.find((theme) => theme.name === themeName); // <== randame tema
-        if (selectedTheme) {
-           categoryId = selectedTheme.id; // <== pasiimame id
-        }
-//        console.log("categoryId:", categoryId);
+//async function getQuestionsFromAPI(amount, themeName, difficulty) {
+////    console.log("getQuestionsFromAPI is called with:", { amount, themeName, difficulty });
+//        let selectedTheme = allThemes.find((theme) => theme.name === themeName); // <== randame tema
+//        if (selectedTheme) {
+//           categoryId = selectedTheme.id; // <== pasiimame id
+//        }
+////        console.log("categoryId:", categoryId);
+//
+//    if (!categoryId) {
+//       console.error("Error: Theme category not found:", themeName);
+//       return [];
+//    }
+//        let apiUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + categoryId + "&difficulty=" + difficulty + "&type=multiple"; // <== Naudojame kategorijos ID
+//    try {
+//        const response = await fetch(apiUrl);
+//        const data = await response.json();
+//        if (data.results && Array.isArray(data.results)) {
+//            return data.results;
+//        } else {
+//            console.error("Error: Invalid API response", data);
+//            return [];
+//        }
+//    } catch (error) {
+//        console.error("Error fetching questions from API:", error);
+//        return [];
+//    }
+//}
 
-    if (!categoryId) {
-       console.error("Error: Theme category not found:", themeName);
-       return [];
-    }
-        let apiUrl = "https://opentdb.com/api.php?amount=" + amount + "&category=" + categoryId + "&difficulty=" + difficulty + "&type=multiple"; // <== Naudojame kategorijos ID
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        if (data.results && Array.isArray(data.results)) {
-            return data.results;
-        } else {
-            console.error("Error: Invalid API response", data);
-            return [];
-        }
-    } catch (error) {
-        console.error("Error fetching questions from API:", error);
-        return [];
-    }
+function getQuestionsFromAndroid(categoryId, difficulty) {
+    return new Promise((resolve) => {
+        window.questionCallback = function (dataString) {
+            if (dataString) {
+                try {
+                    const data = JSON.parse(dataString);
+                    resolve(data.results || []);
+                } catch (e) {
+                    console.error("JSON parsing error:", e);
+                    resolve([]);
+                }
+            } else {
+                resolve([]);
+            }
+        };
+
+        Android.getQuestionsFromAPI(categoryId, difficulty, "questionCallback");
+    });
 }
 
+//async function getValidQuestions(themeName, level) {
+//    try {
+//        const questions = await getQuestionsFromAPI(10, themeName, level);
+//        if (questions && questions.length > 0) {
+//            return questions;
+//        }
+//        return null;
+//    } catch (error) {
+//        console.error("Error checking for questions:", error);
+//        return null;
+//    }
+//}
 async function getValidQuestions(themeName, level) {
-    try {
-        const questions = await getQuestionsFromAPI(10, themeName, level);
-        if (questions && questions.length > 0) {
-            return questions;
-        }
-        return null;
-    } catch (error) {
-        console.error("Error checking for questions:", error);
-        return null;
-    }
-}
+            console.log("[JS] getValidQuestions called with theme:", themeName, "level:", level);
+            let selectedThemeObject = allThemes.find((theme) => theme.name === themeName);
+            if (!selectedThemeObject || !selectedThemeObject.id) {
+                console.error("[JS] Category ID not found for theme:", themeName);
+                showModal("Internal error: Theme category not found.");
+                return null;
+            }
+            const categoryId = selectedThemeObject.id;
+            console.log("[JS] Calling getQuestionsFromAndroid with categoryId:", categoryId, "difficulty:", level);
 
+            try {
+                // Svarbu: Kviečiame getQuestionsFromAndroid, o ne užkomentuotą getQuestionsFromAPI
+                const questions = await getQuestionsFromAndroid(categoryId.toString(), level); // Įsitikinkite, kad categoryId yra string
+                console.log("[JS] Received questions from Android:", questions);
+
+                if (questions && questions.length > 0) {
+                    return questions;
+                }
+                console.warn("[JS] No questions received or empty array from Android.");
+                return null;
+            } catch (error) {
+                console.error("[JS] Error in getValidQuestions (calling getQuestionsFromAndroid):", error);
+                return null;
+            }
+        }
 
 // Funkcija, kuri sumaiso atsakymus
 function shuffleArray(array) {
@@ -637,10 +714,10 @@ function enableMobileHelpAfterReward() {
 }
 
 //Ši funkcija iškviečia Android kodą, kad būtų parodyta reward reklama.
-if (typeof Android !== "undefined") {
-                    console.log("Start button clicked");
-                           showRewardAd();
-                        }
+//if (typeof Android !== "undefined") {
+//                    console.log("Start button clicked");
+//                           showRewardAd();
+//                        }
 
 
 mobileBtn.addEventListener("click", async (event) => {
@@ -756,38 +833,38 @@ function getRandomAnswers(incorrectAnswers, count) {
   return incorrectAnswers.sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-let answerButtonsList = [];
+//let answerButtonsList = [];
 
-function cacheAnswerButtons() {
-  answerButtonsList = [...answerButtons.querySelectorAll("button")];
-}
-
-// Funkcija išjungti mygtukus
-function disableButtons() {
-  answerButtonsList.forEach((button) => {
-    button.disabled = true;
-//    button.addEventListener("click", async()=>{
-//    await playSound("notActiveSound")});
-  });
-}
-
-// Funkcija įjungti mygtukus
-function enableButtons() {
-  answerButtonsList.forEach((button) => {
-    button.disabled = false;
-//    button.removeEventListener("click", ()=>{
-//    playSound("notActiveSound")});
-  });
-}
+//function cacheAnswerButtons() {
+//  answerButtonsList = [...answerButtons.querySelectorAll("button")];
+//}
+//
+//// Funkcija išjungti mygtukus
+//function disableButtons() {
+//  answerButtonsList.forEach((button) => {
+//    button.disabled = true;
+////    button.addEventListener("click", async()=>{
+////    await playSound("notActiveSound")});
+//  });
+//}
+//
+//// Funkcija įjungti mygtukus
+//function enableButtons() {
+//  answerButtonsList.forEach((button) => {
+//    button.disabled = false;
+////    button.removeEventListener("click", ()=>{
+////    playSound("notActiveSound")});
+//  });
+//}
 
 // Parodo, kuris atsakymas yra teisingas
-function showCorrectAnswer(answer) {
-  answerButtonsList.forEach((button) => {
-    if (button.textContent === answer) {
-      button.style.background = "#ADFF2F";
-    }
-  });
-}
+//function showCorrectAnswer(answer) {
+//  answerButtonsList.forEach((button) => {
+//    if (button.textContent === answer) {
+//      button.style.background = "#ADFF2F";
+//    }
+//  });
+//}
 
 
 function updateScoreTable(isCorrect) {
