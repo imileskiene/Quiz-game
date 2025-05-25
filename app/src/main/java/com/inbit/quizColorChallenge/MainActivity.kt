@@ -17,7 +17,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.StrictMode
 import android.util.Log
 import android.view.View
 import android.view.WindowInsets
@@ -73,7 +72,6 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-//import com.example.testbanner.R
 
 
 class MainActivity : ComponentActivity() {
@@ -99,7 +97,7 @@ class MainActivity : ComponentActivity() {
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build()
 
-        // Inicijuojame loop garso playerį
+
         val loopFd = resources.openRawResourceFd(R.raw.loop)
         loopMediaPlayer = MediaPlayer().apply {
             setAudioAttributes(attrs)
@@ -109,7 +107,7 @@ class MainActivity : ComponentActivity() {
         }
         loopFd.close()
 
-        // Inicijuojame quiz garso playerį
+
         val quizFd = resources.openRawResourceFd(R.raw.quiz)
         quizMediaPlayer = MediaPlayer().apply {
             setAudioAttributes(attrs)
@@ -120,52 +118,36 @@ class MainActivity : ComponentActivity() {
         quizFd.close()
     }
 
-    // 👇 FUNKCIJA: tikrina ar yra internetas
     private fun isInternetAvailable(): Boolean {
-//        Log.d(TAG, "isInternetAvailable: Checking for internet...")
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         try {
             val network = connectivityManager.activeNetwork
             if (network == null) {
-//                Log.d(TAG, "isInternetAvailable: activeNetwork is null. Returning false.")
                 return false
             }
-//            Log.d(TAG, "isInternetAvailable: activeNetwork found.")
             val capabilities = connectivityManager.getNetworkCapabilities(network)
             if (capabilities == null) {
-//                Log.d(TAG, "isInternetAvailable: getNetworkCapabilities is null. Returning false.")
                 return false
             }
             val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//            Log.d(TAG, "isInternetAvailable: hasCapability(NET_CAPABILITY_INTERNET) = $hasInternet. Returning $hasInternet.")
             return hasInternet
         } catch (e: SecurityException) {
-            // Apdorojame SecurityException - jei trūksta leidimų, laikome, kad interneto NĖRA
-//            Log.e(TAG, "isInternetAvailable: SecurityException checking network state. Assuming no internet.", e)
-            return false // Svarbu: grąžinti false, jei trūksta leidimų
+            return false
         } catch (e: Exception) {
-            // Apdorojame kitas galimas klaidas
-//            Log.e(TAG, "isInternetAvailable: Exception checking network state. Assuming no internet.", e)
             return false
         }
     }
-
-    // 👇 FUNKCIJA: rodo dialogą, jei nėra interneto
     private fun showNoInternetDialog() {
-//        Log.d(TAG, "showNoInternetDialog() pradžia.")
         AlertDialog.Builder(this)
             .setTitle("Error")
             .setMessage("No internet connection available. Please check your connection and try again.")
-            .setCancelable(false) // Neleidžiame uždaryti dialogo paspaudus ne jo zoną ar "Atgal" mygtuką
+            .setCancelable(false)
             .setPositiveButton("Close") { dialog, _ ->
-//                Log.d(TAG, "Dialogo 'Close' mygtukas paspaustas. Uždariamas dialogas ir Activity.")
-                dialog.dismiss() // Uždaro dialogą
-                finishAffinity() // Uždaro visas susijusias programos veiklas ir išeina iš programos
+                dialog.dismiss()
+                finishAffinity()
             }
             .show()
     }
-
-    // Tinklo pokyčių sekimas
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onLost(network: Network) {
             super.onLost(network)
@@ -182,34 +164,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
-                .detectAll() // arba .detectCustomSlowCalls(), .detectDiskReads(), .detectDiskWrites(), .detectNetwork()
-                .penaltyLog()
-                //.penaltyDeath() // Įjunk tik testavimui – app nulūš kai pažeidimas įvyks
-                .build()
-        )
-// Inicializuojame tinklo stebėjimą
         connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        // Ijungiamas Edge To Edge
         enableEdgeToEdge()
 
-        // *** Check internet connection ***
         if (!isInternetAvailable()) {
-            // Pakeitimas: Kviečiamas dialogas tiesiogiai
             showNoInternetDialog()
-            return // Nutraukia onCreate vykdymą
+            return
         } else {
 //            Log.d(TAG, "Interneto ryšys PASIEKIAMAS paleidžiant.")
         }
-        // *** PABAIGA ***
-
-        // Jei internetas yra, tęsiame programos paleidimą
-
-
-
 
         MobileAds.initialize(this) {}
 
@@ -234,14 +198,11 @@ class MainActivity : ComponentActivity() {
                             )
                         )
                 ) {
-                    // Pridedam padding virsuje
                     Spacer(modifier = Modifier.statusBarsPadding())
 
-                    // WebView viršuje, užima visą likusį aukštį
                     Box(modifier = Modifier.weight(1f)) {
                         WebViewScreen(mainActivity = this@MainActivity, webViewInstance = webView!!)
                     }
-                    // Banner reklamos konteineris (Perkeliame i Column)
                     AnimatedVisibility(
                         visible = isBannerVisibleState.value,
                         exit = fadeOut(animationSpec = tween(durationMillis = 80))
@@ -249,7 +210,7 @@ class MainActivity : ComponentActivity() {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .navigationBarsPadding() // Pridedam padding apacioje
+                                .navigationBarsPadding()
                                 .padding(bottom = 10.dp)
                         ) {
                             BannerAdView(
@@ -263,22 +224,15 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
-        // Suaktyvuojam callback'a
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Patikriname, ar webView yra inicializuotas prieš jį naudojant
-                if (webView != null) { // Patikriname, ar webView nėra null
+                if (webView != null) {
                     webView!!.evaluateJavascript("window.dispatchEvent(new Event('backbutton'))", null)
                 } else {
-                    // Jei webView nebuvo inicializuotas (pvz., dėl interneto nebuvimo),
-                    // galima atlikti numatytą veiksmą arba nieko nedaryti
-                    finish() // Pavyzdys: tiesiog uždaryti activity
+                    finish()
                 }
             }
         }
-
-        // Pridedam callback'a prie onBackPressedDispatcher
         onBackPressedDispatcher.addCallback(this, callback)
     }
 
@@ -291,14 +245,12 @@ class MainActivity : ComponentActivity() {
 
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // API 30+
             window.insetsController?.let { controller ->
                 controller.hide(WindowInsets.Type.systemBars())
                 controller.systemBarsBehavior =
                     WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
-            // API < 30 (senesni metodai)
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -311,9 +263,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
-    // FUNKCIJA: užkrauti tarpinę reklamą
     private fun loadInterstitialAd() {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
@@ -323,11 +272,9 @@ class MainActivity : ComponentActivity() {
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
-//                    Log.d(TAG, "Interstitial loaded")
                 }
 
                 override fun onAdFailedToLoad(adError: LoadAdError) {
-//                    Log.e(TAG, "Interstitial failed to load: ${adError.message}")
                     interstitialAd = null
                 }
             }
@@ -343,7 +290,6 @@ class MainActivity : ComponentActivity() {
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad
-                    Log.d(TAG, "Rewarded ad loaded")
 
                     rewardedAd?.fullScreenContentCallback =
                         object : FullScreenContentCallback() {
@@ -354,7 +300,6 @@ class MainActivity : ComponentActivity() {
                             }
 
                             override fun onAdDismissedFullScreenContent() {
-//                                Log.d(TAG, "Rewarded ad dismissed")
                                 val soundToPlay = currentSound
                                 stopAllSounds()
                                 webView?.evaluateJavascript(
@@ -366,32 +311,23 @@ class MainActivity : ComponentActivity() {
                                     null
                                 )
                                 rewardedAd = null
-                                // Parodome banner reklamą
                                 isBannerVisibleState.value = true
                                 loadRewardedAd()
                             }
 
                             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-//                                Log.e(TAG, "Failed to show rewarded ad: ${adError.message}")
                                 rewardedAd = null
-                                // Parodome banner reklamą (jei reklama nepavyko parodyti)
                                 isBannerVisibleState.value = true
-                                // Rodyti pranešimą apie klaidą
                                 webView?.evaluateJavascript("javascript:showAdError()", null)
-                                //Jei nepavyko paleist reklamos vistiek paleidziame funkcija
                                 webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
                             }
                         }
                 }
 
                 override fun onAdFailedToLoad(adError: LoadAdError) {
-//                    Log.e(TAG, "Rewarded ad failed to load: ${adError.message}")
                     rewardedAd = null
-                    // Parodome banner reklamą (jei reklama nepavyko parodyti)
                     isBannerVisibleState.value = true
-                    // Rodyti pranešimą apie klaidą
                     webView?.evaluateJavascript("javascript:showAdError()", null)
-                    //Jei nepavyko paleist reklamos vistiek paleidziame funkcija
                     webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
 
                 }
@@ -402,17 +338,14 @@ class MainActivity : ComponentActivity() {
 
     private fun showRewardedAd() {
         if (rewardedAd != null) {
-            // Paslepiame banner reklamą
             isBannerVisibleState.value = false
             rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdShowedFullScreenContent() {
-//                    Log.d(TAG, "Rewarded ad showed")
                     stopAllSounds()
                     webView?.evaluateJavascript("javascript:onRewardStarted()", null)
                 }
 
                 override fun onAdDismissedFullScreenContent() {
-//                    Log.d(TAG, "Rewarded ad dismissed")
                     val soundToPlay = currentSound
                     stopAllSounds()
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -423,7 +356,6 @@ class MainActivity : ComponentActivity() {
                     webView?.evaluateJavascript("javascript:onRewardEnded('$soundToPlay')", null)
                     }, 150)
                     rewardedAd = null
-                    // Parodome banner reklamą
                     Handler(Looper.getMainLooper()).postDelayed({
                         isBannerVisibleState.value = true
                     }, 300)
@@ -431,43 +363,31 @@ class MainActivity : ComponentActivity() {
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-//                    Log.e(TAG, "Failed to show rewarded ad: ${adError.message}")
                     rewardedAd = null
-                    // Parodome banner reklamą (jei reklama nepavyko parodyti)
                     isBannerVisibleState.value = true
-                    // Rodyti pranešimą apie klaidą
                     webView?.evaluateJavascript("javascript:showAdError()", null)
-                    //Jei nepavyko paleist reklamos vistiek paleidziame funkcija
                     webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
                 }
             }
             rewardedAd?.show(this) { rewardItem ->
                 val rewardAmount = rewardItem.amount
                 val rewardType = rewardItem.type
-//                Log.d(TAG, "User earned reward: $rewardAmount $rewardType")
             }
         } else {
-//            Log.d(TAG, "Rewarded ad is not ready")
-            // Rodyti pranešimą apie klaidą
             webView?.evaluateJavascript("javascript:showAdError()", null)
-            //Jei nepavyko paleist reklamos vistiek paleidziame funkcija
             webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
 
         }
     }
 
-
-    // FUNKCIJA: parodyti tarpinę reklamą
     fun showInterstitialAd() {
         if (interstitialAd != null) {
             isBannerVisibleState.value = false
             interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
-//                    Log.d(TAG, "Interstitial closed")
                     stopAllSounds()
-                    // Pašalinam overlay
+
                     Handler(Looper.getMainLooper()).postDelayed({
-                        // Pašalinam overlay ir paleidžiam sekančią JS funkciją su delay
                         webView?.evaluateJavascript("javascript:removeOverlay();", null)
                         webView?.evaluateJavascript("javascript:callNextContainer();", null)
                     }, 150)
@@ -479,27 +399,20 @@ class MainActivity : ComponentActivity() {
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-//                    Log.e(TAG, "Failed to show interstitial: ${adError.message}")
                     interstitialAd = null
-                    // Pašalinam overlay
                     webView?.evaluateJavascript("javascript:removeOverlay();", null)
-                    // Kadangi reklama nepavyko parodyti, kviečiam nextContainer
                     webView?.evaluateJavascript("javascript:callNextContainer();", null)
                     isBannerVisibleState.value = true
                 }
 
                 override fun onAdShowedFullScreenContent() {
-//                    Log.d(TAG, "Interstitial showed")
                     stopAllSounds()
                     webView?.evaluateJavascript("javascript:onInterstitialStarted()", null)
                 }
             }
             interstitialAd?.show(this)
         } else {
-//            Log.d(TAG, "Interstitial not ready yet")
-            // Pašalinam overlay
             webView?.evaluateJavascript("javascript:removeOverlay();", null)
-            // Jei reklama negalima parodyti, kviečiame nextContainer
             webView?.evaluateJavascript("javascript:callNextContainer();", null)
         }
     }
@@ -508,15 +421,12 @@ class MainActivity : ComponentActivity() {
         val recipient = "inbit.dev@gmail.com"
         val subject = "Quizly: Color Challenge"
 
-        // Gauti programėlės versiją
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val versionName = packageInfo.versionName
 
-        // Gauti OS ir įrenginio info
         val androidVersion = Build.VERSION.RELEASE
         val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
 
-        // Paruošti laiško turinį
         val body = """
         
         --- App Info ---
@@ -526,7 +436,7 @@ class MainActivity : ComponentActivity() {
     """.trimIndent()
 
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "message/rfc822" // apriboti tik el. pašto appsams
+            type = "message/rfc822"
             putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, body)
@@ -541,10 +451,9 @@ class MainActivity : ComponentActivity() {
 
 
     fun closeGame() {
-        finish() // Uždaro žaidimą
+        finish()
     }
 
-    // Uzdaro zaidima
     fun stopGame() {
         stopAllSounds()
         finish()
@@ -607,7 +516,6 @@ class MainActivity : ComponentActivity() {
             }
 
             else -> {
-                // Jei currentSound null arba netikėta reikšmė, nieko nedaryti.
             }
         }
     }
@@ -618,24 +526,19 @@ class MainActivity : ComponentActivity() {
         loopMediaPlayer = null
         quizMediaPlayer?.release()
         quizMediaPlayer = null
-        // Svarbu: paleisti WebView resursus, jei jis buvo inicializuotas
         webView?.destroy()
         webView = null
     }
 
     override fun onResume() {
         super.onResume()
-        // Registruojame atskambinimo funkciją TIK jei internetas yra
-        if (isInternetAvailable()) { // Naudojame atnaujintą isInternetAvailable su try-catch
-//            Log.d(TAG, "onResume: Registering network callback.")
+        if (isInternetAvailable()) {
             val request = NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build()
             try {
                 connectivityManager.registerNetworkCallback(request, networkCallback)
             } catch (e: SecurityException) {
-//                Log.e(TAG, "onResume: SecurityException registering network callback. Permission denied.", e)
-                // Čia galite nieko nedaryti, nes be leidimo vis tiek nepavyks
             }
         } else {
 //            Log.d(TAG, "onResume: Internet not available. Not registering network callback.")
@@ -644,22 +547,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Išregistruojame atskambinimo funkciją TIK jei ji buvo registruota (t.y. jei internetas buvo)
-        // Geresnis būdas yra tikrinti, ar isInternetAvailable() buvo true onCreate metu,
-        // bet paprastumo dėlei galime bandyti išregistruoti ir apdoroti SecurityException.
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback)
-//            Log.d(TAG, "onPause: Unregistered network callback.")
         } catch (e: IllegalArgumentException) {
-            // Ši išimtis gali atsirasti, jei atskambinimo funkcija nebuvo registruota
-//            Log.d(TAG, "onPause: Network callback was not registered. No need to unregister.", e)
         } catch (e: SecurityException) {
-//            Log.e(TAG, "onPause: SecurityException unregistering network callback. Permission denied.", e)
         }
     }
 
-
-    // Klase kuri bus susieta su Javascript.
     class WebAppInterface(
         private val mContext: Context,
         private val activity: MainActivity,
@@ -687,7 +581,7 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun getQuestionsFromAPI(categoryId: String, difficulty: String, callbackName: String) {
-            Log.d("WebAppInterface", "getQuestionsFromAPI called with categoryId: $categoryId, difficulty: $difficulty, callbackName: $callbackName") // Pridėta
+            Log.d("WebAppInterface", "getQuestionsFromAPI called with categoryId: $categoryId, difficulty: $difficulty, callbackName: $callbackName")
             val apiUrl =
                 "https://opentdb.com/api.php?amount=10&category=$categoryId&difficulty=$difficulty&type=multiple"
             Log.d("WebAppInterface", "API URL: $apiUrl")
@@ -699,11 +593,11 @@ class MainActivity : ComponentActivity() {
                     connection.readTimeout = 5000
 
                     val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-                    Log.d("WebAppInterface", "API Response: $responseText") // Pridėta
+                    Log.d("WebAppInterface", "API Response: $responseText")
 
                     if (isSafe()) {
                         (mContext as Activity).runOnUiThread {
-                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with response") // Pridėta
+                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with response")
                             webView?.evaluateJavascript(
                                 "$callbackName(${JSONObject.quote(responseText)})",
                                 null
@@ -712,11 +606,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                 } catch (e: Exception) {
-                    Log.e("WebAppInterface", "Error fetching from API: ${e.message}", e) // Pakeistas Log lygis į Error
+                    Log.e("WebAppInterface", "Error fetching from API: ${e.message}", e)
                     e.printStackTrace()
                     if (isSafe()) {
                         (mContext as Activity).runOnUiThread {
-                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with null due to error") // Pridėta
+                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with null due to error")
                             webView?.evaluateJavascript("$callbackName(null)", null)
                         }
                     }
@@ -736,7 +630,6 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun onInterstitialStarted() {
             if (!isSafe()) return
-//            Log.d("WebAppInterface", "onInterstitialStarted() called from JavaScript")
             activity.runOnUiThread {
                 activity.stopAllSounds()
             }
@@ -745,16 +638,13 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun onInterstitialEnded(soundToPlay: String?) {
             if (!isSafe()) return
-//            Log.d("WebAppInterface", "onInterstitialEnded() called from JavaScript")
             activity.runOnUiThread {
-                // Cia JavaScript turi paduoti koki garsa reikia groti
             }
         }
 
         @JavascriptInterface
         fun onRewardStarted() {
             if (!isSafe()) return
-//            Log.d("WebAppInterface", "onRewardStarted() called from JavaScript")
             activity.runOnUiThread {
                 activity.stopAllSounds()
             }
@@ -763,7 +653,6 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun onRewardEnded(soundToPlay: String?) {
             if (!isSafe()) return
-//            Log.d("WebAppInterface", "onRewardEnded() called from JavaScript")
             activity.runOnUiThread {
                 activity.playSoundBasedOn(soundToPlay ?: "")
             }
@@ -826,7 +715,6 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun sendSupportEmail() {
             if (!isSafe()) return
-            // Iškviečiame metodą iš MainActivity
             (mContext as Activity).runOnUiThread {
                 (mContext as MainActivity).sendSupportEmail()
             }
@@ -835,15 +723,12 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun goBack() {
             if (!isSafe()) return
-            // Rodo patvirtinimo langą
             (mContext as Activity).runOnUiThread {
-                // Isaugome currentSound reiksme
                 AlertDialog.Builder(mContext)
                     .setTitle("Exit game")
                     .setMessage("Are you sure want to exit?")
                     .setPositiveButton("Yes") { _, _ ->
                         activity.stopAllSounds()
-                        // Iškviečia stopGame metodą MainActivity
                         (mContext as MainActivity).stopGame()
                     }
                     .setNegativeButton("No") { _, _ ->
@@ -855,8 +740,6 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
-    //Cia sukuriamas webview ir suteikiami jam nustatymai
     @SuppressLint("SetJavaScriptEnabled")
     @Composable
     fun WebViewScreen(modifier: Modifier = Modifier, mainActivity: MainActivity, webViewInstance: WebView) {
@@ -877,10 +760,10 @@ class MainActivity : ComponentActivity() {
                         ): Boolean {
                             val url = request?.url.toString()
                             return if (url.startsWith("https://")) {
-                                false // leisti krauti
+                                false
                             } else {
                                 Toast.makeText(context, "Blocked insecure content", Toast.LENGTH_SHORT).show()
-                                true // blokuoti nesaugu turinį
+                                true
                             }
                         }
 
@@ -889,14 +772,13 @@ class MainActivity : ComponentActivity() {
                             handler: SslErrorHandler?,
                             error: SslError?
                         ) {
-                            handler?.cancel() // atšaukti pavojingą puslapį
+                            handler?.cancel()
                             Toast.makeText(context, "SSL error - page blocked", Toast.LENGTH_SHORT).show()
                         }
 
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
                             Log.d("WebView", "Page loaded: $url")
-                            // Jei turi loader, čia jį gali paslėpti
                         }
                         @RequiresApi(Build.VERSION_CODES.O_MR1)
                         override fun onSafeBrowsingHit(
@@ -913,11 +795,8 @@ class MainActivity : ComponentActivity() {
                     webChromeClient = WebChromeClient()
                     setBackgroundColor(0)
 
-                    // Sukuriame WebAppInterface objekta
                     val webAppInterface = WebAppInterface(context, mainActivity, this)
-                    // pridedame Javascript interface
                     addJavascriptInterface(webAppInterface, "Android")
-                    // paleidziama index.html
                     if (mainActivity.isInternetAvailable()) {
                         loadUrl("file:///android_asset/index.html")
                     } else {
@@ -936,16 +815,14 @@ class MainActivity : ComponentActivity() {
             modifier = modifier,
             factory = { context ->
                 AdView(context).apply {
-                    adUnitId = "ca-app-pub-3940256099942544/6300978111" // TEST BANNER ID
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111"
                     setAdSize(AdSize.BANNER)
 
                     adListener = object : AdListener() {
                         override fun onAdLoaded() {
-//                            Log.d("AdMob", "Ad loaded successfully")
                         }
 
                         override fun onAdFailedToLoad(error: LoadAdError) {
-//                            Log.e("AdMob", "Ad failed to load: ${error.message}")
                         }
                     }
 

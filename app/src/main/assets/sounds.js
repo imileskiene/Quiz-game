@@ -18,25 +18,22 @@ const sounds = new Map([
 async function playOtherSounds(type) {
   const sound = sounds.get(type);
   if (sound) {
-    // Atstatyti laiką ir sukurti naują audio, jei jau buvo grotas anksčiau
     sound.currentTime = 0;
 
     return new Promise((resolve) => {
       sound.muted = false;
-      sound.play().catch(() => resolve()); // Jei klaida – nestringa
+      sound.play().catch(() => resolve());
       sound.addEventListener("ended", resolve, { once: true });
     });
   } else {
-    return Promise.resolve(); // Jei garsas nerastas – neblokuoti kodo
+    return Promise.resolve();
   }
 }
 
-// Funkcija sustabdyti visus garsus ir juos užmutinti
 async function stopAllSounds() {
     await stopLoopSound();
     await stopQuizSound();
 
-    // Sustabdome kitus garsus ir juos mutiname
     for (const [key, sound] of sounds.entries()) {
         sound.pause();
         sound.muted = true;
@@ -55,7 +52,6 @@ async function playSound(type) {
     }
 }
 
-// Loop garso paleidimas
 async function playLoopSound() {
     if (typeof Android !== "undefined") {
         if (!loopSoundMuted) {
@@ -65,7 +61,6 @@ async function playLoopSound() {
     }
 }
 
-// Loop garso sustabdymas
 async function stopLoopSound() {
   if (typeof Android !== "undefined") {
    await Android.stopLoopSound();

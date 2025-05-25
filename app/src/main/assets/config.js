@@ -8,12 +8,11 @@ setViewportHeight();
 
 
 window.addEventListener('backbutton', async function(event) {
-    event.preventDefault(); // Sustabdome įprastą naršyklės elgesį
+    event.preventDefault();
 
     if (typeof Android !== "undefined") {
-            Android.goBack(); // Po sustabdymo grįžtame
+            Android.goBack();
     } else {
-        // Jei esame ne Android aplinkoje, tiesiog grįžtame atgal
         window.history.back();
     }
 });
@@ -21,13 +20,8 @@ window.addEventListener('backbutton', async function(event) {
 function sendSupportEmail() {
         console.log("Button clicked");
         if (typeof Android !== "undefined" && Android.sendSupportEmail) {
-            console.log("Calling Android interface");
             Android.sendSupportEmail();
         } else {
-            console.log("Fallback to mailto");
             window.location.href = "mailto:...";
         }
     }
-
-
-//Quizly: Color Challenge

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -18,8 +19,6 @@ android {
             val keyAliasProperty = project.findProperty("MYAPP_RELEASE_KEY_ALIAS")?.toString()
             val keyPasswordProperty = project.findProperty("MYAPP_RELEASE_KEY_PASSWORD")?.toString()
 
-            // Tiesiog priskirkite, jei savybės rastos.
-            // Klaida bus mesta vėliau, jei savybės bus null ir bandoma pasirašyti release.
             if (
                 storeFileProperty != null &&
                 storePasswordProperty != null &&
@@ -61,8 +60,6 @@ android {
                 !releaseSigningConfig.keyPassword.isNullOrEmpty()) {
                 signingConfig = releaseSigningConfig
             } else {
-                // Jei esame release build type ir konfigūracija netinkama, metame klaidą.
-                // Arba galite leisti build'ui praeiti be pasirašymo, jei tai priimtina (nerekomenduojama gamybai).
                 throw GradleException("Release signing configuration is incomplete or missing. " +
                         "Please ensure MYAPP_RELEASE_STORE_FILE, MYAPP_RELEASE_STORE_PASSWORD, " +
                         "MYAPP_RELEASE_KEY_ALIAS, and MYAPP_RELEASE_KEY_PASSWORD are correctly defined in local.properties " +
@@ -96,6 +93,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.database.ktx)
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.crashlytics.ktx)
 
     implementation (libs.androidx.core.splashscreen)
     implementation(libs.androidx.core.ktx)

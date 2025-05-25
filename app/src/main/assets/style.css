@@ -8,22 +8,15 @@
   src: url('fonts/Coiny-Regular.ttf') format('truetype');
 }
 
-
-
-
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-
-
 }
 
 body {
     background: linear-gradient(to right, #3C3CCD, #8A2BE2);
     height: 100vh;
-
 }
 
 .container {
@@ -35,8 +28,6 @@ margin-top:10px;
     display: flex;
     text-align: center;
     justify-content: center;
-    /*padding-bottom: 60px;
-    margin-bottom: 80px;*/
 }
 
 #rules {
@@ -86,12 +77,8 @@ list-style: none;
     top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-    /*width: 100%;
-    height: auto;*/
     width: 90%;
         max-width: 600px;
-        /*min-height: 200px;*/
-       /* height:100%;*/
     background: rgba(15, 3, 50, 0.8);
     padding: 20px;
       border: 2px solid #007bff;
@@ -122,7 +109,7 @@ list-style: none;
 #next-btn {
     width: 50%;
     max-width: 200px;
-    min-height: 60px; /* Naudojamas min-height */
+    min-height: 60px;
     border: none;
     border-radius: 10px;
     text-transform: uppercase;
@@ -154,7 +141,6 @@ list-style: none;
 
 .start-container {
     width: 100%;
-    /*height: 100%;*/
     min-height: calc(var(--vh, 1vh) * 100);
     max-width: 600px;
     margin: 0 auto;
@@ -263,7 +249,6 @@ text-shadow:0 5px 10px black;
     padding:8px;
     width: auto;
     min-width: 50%;
-    /*max-width: 200px;*/
     height: auto;
     margin-bottom:11%;
     border: none;
@@ -279,7 +264,6 @@ text-shadow:0 5px 10px black;
         animation-delay: 0.5s, 0s;
     z-index: 1;
     opacity: 0;
-
 }
 
 @keyframes fadeIn {
@@ -328,15 +312,12 @@ text-shadow:0 5px 10px black;
 
 .startowl-image{
     max-width: 100%;
-        width: 200px; /* Sumažinau numatytąjį plotį, pritaikykite pagal poreikį */
-                      /* Arba naudokite width: 60%; max-width: 200px; */
+        width: 200px;
         height: auto;
         margin-left: auto;
         margin-right: auto;
-    /*height: 250px;*/
 opacity: 0;
     animation: fadeIn 2s ease-out forwards;
-    /*margin-top:30px;*/
 }
 
 
@@ -535,15 +516,12 @@ font-family: "Chewy", serif;
     display: block;
     left:50%;
     transform:translateX(-50%);
-        /*margin: 20px auto;
-        text-align: center;*/
         background:rgb(60, 60, 205, 0.5);
         width: 80%;
         max-width:400px;
         min-height: calc(var(--vh, 1vh) * 10);
         max-height: calc(var(--vh, 1vh) * 10);
         border-radius: 10px;
-        /*margin-bottom:20px;*/
         box-shadow: 2px 10px 20px rgb(237, 227, 179);
         margin-bottom:50px;
         z-index: 10;
@@ -587,7 +565,6 @@ height:calc(var(--vh, 1vh) * 75);
 position: relative;
 margin-top: calc(var(--vh, 1vh) * 10 + 20px);
 height:calc(var(--vh, 1vh) * 70);
-/*overflow:scroll;*/
 overflow-y: auto;
 }
 
@@ -597,7 +574,6 @@ overflow-y: auto;
     max-width: 250px;
     margin: 7px;
     padding:5px;
-    /*height: 70px;*/
     min-height: 90px;
     font-family: "Chewy", serif;
     font-size: 4vw;
@@ -748,9 +724,6 @@ display:none;
     width:90%;
 }
 
-
-
-
 .quiz-container h2 {
     min-width: 90%;
     font-size: 4vw;
@@ -759,19 +732,18 @@ display:none;
     background: inherit;
     color: #fff;
     box-shadow: 5px 5px 20px white;
-    height: calc(var(--vh, 1vh) * 20); /* Nustatome fiksuotą aukštį */
-    max-height: calc(var(--vh, 1vh) * 20); /* Apribojame maksimalų aukštį */
+    height: calc(var(--vh, 1vh) * 20);
+    max-height: calc(var(--vh, 1vh) * 20);
     border-radius: 15px;
     text-align: center;
     font-family: "Coiny", serif;
     font-weight: 400;
     font-style: normal;
-    overflow-y: auto; /* Įjungiamas vertikalus slinkimas */
-    overflow-x: hidden; /* Paslepia horizontalų turinį */
-    scrollbar-width: none; /* Paslepia slinkties juostą Firefox */
-    -ms-overflow-style: none; /* Paslepia slinkties juostą IE/Edge */
-    word-break: break-word; /* Leidžia ilgiems žodžiams lūžti į naujas eilutes */
-     /* Pridedame, kad galetume vidinį elementą pozicionuoti */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    word-break: break-word;
     z-index: 2;
 }
 @supports (font-size: clamp(1px, 1vw, 100px)) {
@@ -782,15 +754,15 @@ display:none;
 
 .quiz-container h2 > * {
    position: absolute;
-    top: 0; /* Pridedame, kad tekstas būtų viršuje */
+    top: 0;
     left: 0;
     right: 0;
-    bottom:0; /* Pridedame, kad tekstas būtų viršuje */
-    padding: 5px 20px; /* Pridedame atstumą, kad tekstas nesiliestų su kraštais */
+    bottom:0;
+    padding: 5px 20px;
 }
 
 .quiz-container h2::-webkit-scrollbar {
-    display: none; /* Paslepia slinkties juostą Chrome, Safari ir Operoje */
+    display: none;
 }
 
 
@@ -801,7 +773,6 @@ display:none;
     height: calc(var(--vh, 1vh) * 7);
     top: 19%;
     left: 50%;
-    /*padding: 1px;*/
     transform: translateX(-50%) scaleX(0.9);
     background: rgb(155, 75, 239, 0.2);
     border: 6px solid gold;
@@ -822,8 +793,8 @@ display:none;
 
 .answer-wrapper {
    position: absolute;
-      top: calc(var(--vh, 1vh) * 25); /* aukštis viršuje po H2 */
-      bottom: calc(var(--vh, 1vh) * 20); /* prieš helper-container */
+      top: calc(var(--vh, 1vh) * 25);
+      bottom: calc(var(--vh, 1vh) * 20);
       left: 0;
       right: 0;
       overflow-y: auto;
@@ -836,12 +807,9 @@ display:none;
         flex-direction: column;
         align-items: center;
         gap: 10px;
-
 }
 
 .btn, .incorrect-answer-btn, .correct-answer-btn {
-    /*width: 300px;
-    max-width: 300px;*/
     position: relative;
     width: 80%;
         max-width: 400px;
@@ -871,12 +839,10 @@ display:none;
 
 .btn:hover {
     scale: 1.05;
-    /* background: grey; */
 }
 
 .incorrect-answer-btn {
     animation: incorrect 0.5s ease-in-out 3;
-
 }
 
 @keyframes incorrect {
@@ -933,7 +899,7 @@ display:none;
     display: flex;
     flex-direction: row;
     align-items: center;
-    align-items: flex-start; /* arba center, priklausomai nuo norimos išvaizdos */
+    align-items: flex-start;
         justify-content: center;
     margin: 0 auto;
     z-index: 2;
@@ -969,7 +935,6 @@ color:yellow;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* margin-bottom: 10px; */
     animation: movebottom 0.6s ease-out forwards;
     z-index: 10;
   }
@@ -1074,9 +1039,7 @@ color:yellow;
             font-style: normal;
             letter-spacing: 0.03em;
         z-index: 999;
-        /*display: none;*/ /* Pašalinau, nes dabar valdome su js*/
     }
-
 
     .show-ad-btn, .show-apply-btn {
         width: 500px;
@@ -1126,13 +1089,10 @@ color:yellow;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 1.5rem;
-    /* margin: 15px 25px 50px 25px; */
     padding: 5px 20px 5px 20px;
-    /* height: auto; */
     background: inherit;
     color: gold;
     box-shadow: 5px 5px 20px gold;
-    /* max-height: 50vh; */
     border-radius: 15px;
     display: none;
     align-items: center;
@@ -1184,7 +1144,6 @@ background: rgb(182, 240, 8);
 
 .bubble-container {
     position: fixed;
-    /*background:black;*/
     bottom: 5px;
     width: 100%;
     min-height: calc(var(--vh, 1vh) * 100);
@@ -1242,7 +1201,6 @@ background:inherit;
 position: fixed;
 min-width:150px;
     width: auto;
-      /*max-width: 220px;*/
     height: 40px;
     top: 3%;
     left: 5%;
@@ -1286,10 +1244,6 @@ position: absolute;
 
 /**********************SCORE****************/
 #score {
-  /*display: flex;
-    flex-direction: column;  iš viršaus į apačią
-    justify-content: center;
-    align-items: center;*/
   min-height: calc(var(--vh, 1vh) * 10);
   width: 100vw;
 }
@@ -1341,7 +1295,7 @@ margin: 50px auto;
 .card-back {
   background-color: #58D68D;
   color: white;
-  transform: rotateY(180deg); /* Užtikrinkite, kad kortelės "nugarinė" pusė būtų pasukta */
+  transform: rotateY(180deg);
 }
 .card-front {
 
@@ -1355,14 +1309,13 @@ margin: 50px auto;
 
 #starContainer {
   position: fixed;
-      /*background:black;*/
       bottom: 5px;
       width: 100%;
       min-height: calc(var(--vh, 1vh) * 100);
       display: none;
       overflow: hidden;
       z-index: -1;
-  pointer-events: none; /* Kad žvaigždės neblaškytų kitų elementų */
+  pointer-events: none;
 }
 
 .star {
@@ -1399,12 +1352,11 @@ margin: 50px auto;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Pusiau permatomas fonas */
+    background-color: rgba(0, 0, 0, 0.7);
     z-index: 10000;
 }
 
 .result-modal-content {
-    /*background: linear-gradient(to right, #3C3CCD, #8A2BE2);*/
     background:transparent;
     padding: 20px 40px;
     border-radius: 10px;
@@ -1423,16 +1375,14 @@ width: 200px;
     height:200px;
     color:#483D8B;
     text-shadow: 7px 5px 9px grey;
-    /*box-shadow: 10px 10px 20px rgb(76, 15, 199);*/
-    box-shadow: 0 0 15px 6px rgba(255, 245, 238, 0.4),  /* glow */
-      2px 4px 8px rgba(0, 0, 0, 0.15);        /* depth */
+    box-shadow: 0 0 15px 6px rgba(255, 245, 238, 0.4),
+      2px 4px 8px rgba(0, 0, 0, 0.15);
     font-size: 1.7rem;
     font-family: "Coiny", serif;
     font-weight: 400;
     font-style: normal;
     border: none;
     border-radius: 50%;
-    /*min-height: calc(var(--vh, 1vh) * 9);*/
     padding: 10px;
         margin: 10px;
 }
