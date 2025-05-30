@@ -25,3 +25,28 @@
     -keep class com.google.ads.** { *; }
     -dontwarn com.google.ads.**
     -dontwarn com.google.android.gms.**
+
+    # Firebase
+    -keep class com.google.firebase.** { *; }
+    -dontwarn com.google.firebase.**
+
+    # Crashlytics
+    -keep class com.google.firebase.crashlytics.** { *; }
+    -dontwarn com.google.firebase.crashlytics.**
+
+    # Jetpack Compose
+    -keep class androidx.compose.runtime.** { *; }
+    -keep class androidx.compose.ui.** { *; }
+    -keep class androidx.compose.material3.** { *; }
+    -dontwarn androidx.compose.**
+
+    # Kotlin
+    -keep class kotlin.** { *; }
+    -dontwarn kotlin.**
+
+    # Coroutines
+    -keep class kotlinx.coroutines.** { *; }
+    -dontwarn kotlinx.coroutines.**
+
+    # Crashlytics obfuscation support
+    -keepattributes SourceFile,LineNumberTable

@@ -66,7 +66,7 @@ function showRewardPopupDiv() {
         showAdBtn.addEventListener("click", () => {
         overlayContainer.style.display = "block";
             showRewardAd();
-            rewardPopupContainer.remove();
+//            rewardPopupContainer.remove();
         });
         rewardPopupContainer.appendChild(showAdBtn);
 

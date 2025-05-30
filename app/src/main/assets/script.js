@@ -607,6 +607,9 @@ function enableMobileHelpAfterReward() {
     isMobileHelpActive = false;
     mobileBtnFirstClick = false;
    isMobileBtnProcessing = false;
+
+   const popup = document.getElementById("reward-popup-container");
+       if (popup) popup.remove(); // uždaro modalą po sėkmingos reklamos
 }
 
 mobileBtn.addEventListener("click", async (event) => {

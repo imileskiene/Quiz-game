@@ -52,6 +52,10 @@ font-family: "Chewy", serif;
   }
 }
 
+#instruction-content{
+margin-top: 10%;
+}
+
 #rules p,
 #instruction-content li{
 font-family: "Chewy", serif;
@@ -79,6 +83,8 @@ list-style: none;
       transform: translate(-50%, -50%);
     width: 90%;
         max-width: 600px;
+        min-height: auto;
+        max-height:100%;
     background: rgba(15, 3, 50, 0.8);
     padding: 20px;
       border: 2px solid #007bff;
@@ -88,6 +94,7 @@ list-style: none;
     align-items: center;
     text-align:center;
     z-index: 999;
+    overflow-y: auto;
 }
 
 .instructionBtn,
@@ -107,9 +114,6 @@ list-style: none;
 
 .closeBtn,
 #next-btn {
-    width: 50%;
-    max-width: 200px;
-    min-height: 60px;
     border: none;
     border-radius: 10px;
     text-transform: uppercase;
@@ -128,12 +132,20 @@ list-style: none;
 }
 
 .closeBtn {
+position: absolute; /* privaloma */
+    top: 10px;          /* kiek nuo viršaus */
+    right: 10px;
+width: 50px;
+height: 50px;
     color: rgb(237, 227, 179);
     background: rgb(114, 77, 226);
-    margin-top: 50px;
+    border-radius:50%;
 }
 
 #next-btn {
+width: 50%;
+    max-width: 200px;
+    min-height: 60px;
     margin-bottom: 10px;
     background: rgb(237, 227, 179);
     color: rgb(114, 77, 226);
@@ -1134,9 +1146,9 @@ background: rgb(182, 240, 8);
 
 .support-btn{
     min-height: calc(var(--vh, 1vh) * 8);
-    box-shadow: 10px 10px 20px white;
+    box-shadow: 5px 5px 10px white;
     margin: 10px;
-    background: #3C3CCD;
+    background: black;
     width: 200px;
         max-width: 200px;
         text-align: center;

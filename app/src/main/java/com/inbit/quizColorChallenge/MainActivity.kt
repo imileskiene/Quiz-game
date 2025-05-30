@@ -71,6 +71,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import com.google.android.ump.*
 
 
 
@@ -167,6 +168,34 @@ class MainActivity : ComponentActivity() {
         connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
         enableEdgeToEdge()
+
+        val params = ConsentRequestParameters.Builder()
+            .setTagForUnderAgeOfConsent(false)
+            .build()
+
+        val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+        consentInformation.requestConsentInfoUpdate(
+            this,
+            params,
+            {
+                if (consentInformation.isConsentFormAvailable) {
+                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) { formError ->
+                        formError?.let {
+//                            Log.w("UMP", "Formos klaida: ${it.message}")
+                        }
+                    }
+                }
+            },
+            { formError ->
+//                Log.w("UMP", "Užklausos klaida: ${formError.message}")
+            }
+        )
+
+
+        if (!isInternetAvailable()) {
+            showNoInternetDialog()
+            return
+        }
 
         if (!isInternetAvailable()) {
             showNoInternetDialog()
@@ -294,7 +323,7 @@ class MainActivity : ComponentActivity() {
                     rewardedAd?.fullScreenContentCallback =
                         object : FullScreenContentCallback() {
                             override fun onAdShowedFullScreenContent() {
-                                Log.d(TAG, "Rewarded ad showed")
+//                                Log.d(TAG, "Rewarded ad showed")
                                 stopAllSounds()
                                 webView?.evaluateJavascript("javascript:onRewardStarted()", null)
                             }
@@ -318,7 +347,8 @@ class MainActivity : ComponentActivity() {
                             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                                 rewardedAd = null
                                 isBannerVisibleState.value = true
-                                webView?.evaluateJavascript("javascript:showAdError()", null)
+                                webView?.evaluateJavascript("javascript:removeOverlay();", null)
+//                                webView?.evaluateJavascript("javascript:showAdError()", null)
                                 webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
                             }
                         }
@@ -327,7 +357,8 @@ class MainActivity : ComponentActivity() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     rewardedAd = null
                     isBannerVisibleState.value = true
-                    webView?.evaluateJavascript("javascript:showAdError()", null)
+                    webView?.evaluateJavascript("javascript:removeOverlay();", null)
+//                    webView?.evaluateJavascript("javascript:showAdError()", null)
                     webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
 
                 }
@@ -349,6 +380,7 @@ class MainActivity : ComponentActivity() {
                     val soundToPlay = currentSound
                     stopAllSounds()
                     Handler(Looper.getMainLooper()).postDelayed({
+                        webView?.evaluateJavascript("javascript:removeOverlay();", null)
                     webView?.evaluateJavascript(
                         "javascript:enableMobileHelpAfterReward('$soundToPlay')",
                         null
@@ -365,6 +397,7 @@ class MainActivity : ComponentActivity() {
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     rewardedAd = null
                     isBannerVisibleState.value = true
+                    webView?.evaluateJavascript("javascript:removeOverlay();", null)
                     webView?.evaluateJavascript("javascript:showAdError()", null)
                     webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
                 }
@@ -374,6 +407,7 @@ class MainActivity : ComponentActivity() {
                 val rewardType = rewardItem.type
             }
         } else {
+            webView?.evaluateJavascript("javascript:removeOverlay();", null)
             webView?.evaluateJavascript("javascript:showAdError()", null)
             webView?.evaluateJavascript("javascript:onRewardEnded('')", null)
 
@@ -543,6 +577,7 @@ class MainActivity : ComponentActivity() {
         } else {
 //            Log.d(TAG, "onResume: Internet not available. Not registering network callback.")
         }
+        webView?.evaluateJavascript("resumeLastSound()", null)
     }
 
     override fun onPause() {
@@ -552,6 +587,7 @@ class MainActivity : ComponentActivity() {
         } catch (e: IllegalArgumentException) {
         } catch (e: SecurityException) {
         }
+        webView?.evaluateJavascript("pauseAllSounds()", null)
     }
 
     class WebAppInterface(
@@ -581,10 +617,10 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun getQuestionsFromAPI(categoryId: String, difficulty: String, callbackName: String) {
-            Log.d("WebAppInterface", "getQuestionsFromAPI called with categoryId: $categoryId, difficulty: $difficulty, callbackName: $callbackName")
+//            Log.d("WebAppInterface", "getQuestionsFromAPI called with categoryId: $categoryId, difficulty: $difficulty, callbackName: $callbackName")
             val apiUrl =
                 "https://opentdb.com/api.php?amount=10&category=$categoryId&difficulty=$difficulty&type=multiple"
-            Log.d("WebAppInterface", "API URL: $apiUrl")
+//            Log.d("WebAppInterface", "API URL: $apiUrl")
             Thread {
                 try {
                     val connection = URL(apiUrl).openConnection() as HttpURLConnection
@@ -593,11 +629,11 @@ class MainActivity : ComponentActivity() {
                     connection.readTimeout = 5000
 
                     val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-                    Log.d("WebAppInterface", "API Response: $responseText")
+//                    Log.d("WebAppInterface", "API Response: $responseText")
 
                     if (isSafe()) {
                         (mContext as Activity).runOnUiThread {
-                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with response")
+//                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with response")
                             webView?.evaluateJavascript(
                                 "$callbackName(${JSONObject.quote(responseText)})",
                                 null
@@ -606,11 +642,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                 } catch (e: Exception) {
-                    Log.e("WebAppInterface", "Error fetching from API: ${e.message}", e)
+//                    Log.e("WebAppInterface", "Error fetching from API: ${e.message}", e)
                     e.printStackTrace()
                     if (isSafe()) {
                         (mContext as Activity).runOnUiThread {
-                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with null due to error")
+//                            Log.d("WebAppInterface", "Calling JS callback: $callbackName with null due to error")
                             webView?.evaluateJavascript("$callbackName(null)", null)
                         }
                     }
@@ -778,7 +814,7 @@ class MainActivity : ComponentActivity() {
 
                         override fun onPageFinished(view: WebView?, url: String?) {
                             super.onPageFinished(view, url)
-                            Log.d("WebView", "Page loaded: $url")
+//                            Log.d("WebView", "Page loaded: $url")
                         }
                         @RequiresApi(Build.VERSION_CODES.O_MR1)
                         override fun onSafeBrowsingHit(

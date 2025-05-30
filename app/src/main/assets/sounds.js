@@ -14,6 +14,43 @@ const sounds = new Map([
     ["loose", new Audio(window.Android.getSoundPath("loose"))]
 ]);
 
+let lastSound = null;
+
+function pauseAllSounds() {
+    for (const [key, sound] of sounds.entries()) {
+        if (!sound.paused) {
+            lastSound = key;
+        }
+        sound.pause();
+    }
+
+    if (typeof Android !== "undefined") {
+        if (currentSound === "loop") {
+            Android.stopLoopSound();
+        } else if (currentSound === "quiz") {
+            Android.stopQuizSound();
+        }
+    }
+}
+
+function resumeLastSound() {
+    if (currentSound === "loop") {
+        playLoopSound();
+    } else if (currentSound === "quiz") {
+        playQuizSound();
+    }
+    else if (lastSound) {
+        const sound = sounds.get(lastSound);
+        if (sound) {
+            sound.currentTime = 0;
+            sound.muted = false;
+            sound.play().catch((e) => {
+//                console.warn("Nepavyko paleisti garso:", e);
+            });
+        }
+    }
+}
+
 
 async function playOtherSounds(type) {
   const sound = sounds.get(type);
